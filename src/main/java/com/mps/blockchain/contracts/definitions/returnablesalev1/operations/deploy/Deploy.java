@@ -24,6 +24,7 @@ import com.mps.blockchain.model.SellerAccount;
 import com.mps.blockchain.network.NetworkProvider;
 import com.mps.blockchain.persistence.services.BlockchainAccountRepositoryService;
 import com.mps.blockchain.persistence.services.DeployedContractsRepositoryService;
+import com.mps.blockchain.service.accounts.AccountFunder;
 import com.mps.blockchain.service.accounts.AccountManager;
 import com.mps.blockchain.service.accounts.CredentialsProvider;
 
@@ -38,6 +39,9 @@ public class Deploy implements ContractOperation {
 
 	@Autowired
 	private AccountManager accountManager;
+
+	@Autowired
+	private AccountFunder accountFunder;
 
 	@Autowired
 	private BlockchainAccountRepositoryService blockchainAccountRepositoryService;
@@ -86,11 +90,7 @@ public class Deploy implements ContractOperation {
 			return OperationResult.ERROR;
 		}
 		DecryptedBlockchainAccount buyerBlockchainAccount = buyerAccountOptional.get();
-
-		String contractAddress = "";
-		String deploymentResult = "success";
-
-		OperationResult result;
+				
 		try {			
 			Web3j web3j = networkProvider.getBlockchainNetwork();
 			Credentials credentials = credentialsProvider.getMainCredentials();
@@ -99,7 +99,7 @@ public class Deploy implements ContractOperation {
 					.deploy(web3j, credentials, new DefaultGasProvider(), sellerBlockchainAccount.getAddress(),
 							buyerBlockchainAccount.getAddress(), inputParameters.getContractValue())
 					.send();
-			contractAddress = returnableSaleV1.getContractAddress();
+			String contractAddress = returnableSaleV1.getContractAddress();
 			Optional<TransactionReceipt> optionalReceipt = returnableSaleV1.getTransactionReceipt();
 			String receipt = null;
 			if (optionalReceipt.isPresent()) {
@@ -112,18 +112,28 @@ public class Deploy implements ContractOperation {
 			contract.setSellerAccountId(sellerAccount.getId());
 			contract.setBuyerAccountId(buyerAccount.getId());
 			contract.setReceipt(receipt);
-			contract.setDeploymentResult(deploymentResult);
+			contract.setDeploymentResult(OperationResult.SUCCESS.getValue());
 			deployedContractsRepositoryService.create(contract);
 
 			outputs.put("contractId", contract.getId());
-			result = OperationResult.SUCCESS;
 		} catch (Exception e) {
 			outputs.put("error", e);
-		    result = OperationResult.ERROR;
+		    return OperationResult.ERROR;
 		}
-		return result;
-	}
 
+		if (accountFunder.fundSellerAddress(sellerBlockchainAccount.getAddress(), outputs) == OperationResult.ERROR) {
+			outputs.put("error", "seller account could not be funded: " + outputs.get("error"));
+			return OperationResult.ERROR;
+		}
+
+		if (accountFunder.fundBuyerAddress(buyerBlockchainAccount.getAddress(), outputs) == OperationResult.ERROR) {
+			outputs.put("error", "buyer account could not be funded: " + outputs.get("error"));
+			return OperationResult.ERROR;
+		}
+
+		return OperationResult.SUCCESS;
+	}
+	
 	private String toString(Object object) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

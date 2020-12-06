@@ -29,24 +29,26 @@ public class AccountManager {
 	@Autowired
 	private AccountIssuer accountIssuer;
 
-	public SellerAccount getSellerAccount(UUID id) {
+	public SellerAccount getSellerAccount(UUID mpsSellerId) {
 		SellerAccount sellerAccount = null;
 		DecryptedBlockchainAccount blockchainAccount = null;
 
-		Optional<SellerAccount> optional = sellerAccountRepository.findByMpsSellerId(id);
+		Optional<SellerAccount> optional = sellerAccountRepository.findByMpsSellerId(mpsSellerId);
 		if (!optional.isEmpty()) {
 			sellerAccount = optional.get();
 			Optional<DecryptedBlockchainAccount> blockchainAccountOptional = blockchainAccountRepositoryService
 					.findById(sellerAccount.getBlockchainAccountId());
 			if (blockchainAccountOptional.isPresent()) {
 				blockchainAccount = blockchainAccountOptional.get();
+			} else {
+				return null;
 			}
 		} else {
 			blockchainAccount = accountIssuer.issueAccount();
 			blockchainAccountRepositoryService.create(blockchainAccount);
 
 			sellerAccount = new SellerAccount();
-			sellerAccount.setMpsSellerId(id);
+			sellerAccount.setMpsSellerId(mpsSellerId);
 			sellerAccount.setBlockchainAccountId(blockchainAccount.getId());
 
 			sellerAccountRepository.save(sellerAccount);
@@ -55,24 +57,26 @@ public class AccountManager {
 		return sellerAccount;
 	}
 
-	public BuyerAccount getBuyerAccount(UUID id) {
+	public BuyerAccount getBuyerAccount(UUID mpsBuyerId) {
 		BuyerAccount buyerAccount = null;
 		DecryptedBlockchainAccount blockchainAccount = null;
 
-		Optional<BuyerAccount> optional = buyerAccountRepository.findByMpsBuyerId(id);
+		Optional<BuyerAccount> optional = buyerAccountRepository.findByMpsBuyerId(mpsBuyerId);
 		if (!optional.isEmpty()) {
 			buyerAccount = optional.get();
 			Optional<DecryptedBlockchainAccount> blockchainAccountOptional = blockchainAccountRepositoryService
 					.findById(buyerAccount.getBlockchainAccountId());
 			if (blockchainAccountOptional.isPresent()) {
 				blockchainAccount = blockchainAccountOptional.get();
+			} else {
+				return null;
 			}
 		} else {
 			blockchainAccount = accountIssuer.issueAccount();
 			blockchainAccountRepositoryService.create(blockchainAccount);
 
 			buyerAccount = new BuyerAccount();
-			buyerAccount.setMpsBuyerId(id);
+			buyerAccount.setMpsBuyerId(mpsBuyerId);
 			buyerAccount.setBlockchainAccountId(blockchainAccount.getId());
 
 			buyerAccountRepository.save(buyerAccount);
