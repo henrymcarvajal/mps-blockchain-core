@@ -2,6 +2,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,java-web,code-java,windows,macos,linux,intellij,eclipse,netbeans
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,java-web,code-java,windows,macos,linux,intellij,eclipse,netbeans
 
+### Local configurations
+src/main/resources/application-local.properties
+
 ### Code-Java ###
 # Language Support for Java(TM) by Red Hat extension for Visual Studio Code - https://marketplace.visualstudio.com/items?itemName=redhat.java
 
