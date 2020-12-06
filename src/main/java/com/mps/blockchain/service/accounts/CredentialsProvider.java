@@ -1,4 +1,4 @@
-package com.mps.blockchain;
+package com.mps.blockchain.service.accounts;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,12 +9,18 @@ import com.mps.blockchain.model.DecryptedBlockchainAccount;
 @Service
 public class CredentialsProvider {
 	
+	@Value("${blockchain.mps.account.address}")
+	private String mpsAccountAdress;
+
 	@Value("${blockchain.mps.account.privk}")
 	private String mpsAccountPrivateK;
 
 	@Value("${blockchain.mps.account.pubk}")
 	private String mpsAccountPublicK;
 
+	public String getMainAddres() {
+		return mpsAccountAdress;
+	}
 	
 	public Credentials getMainCredentials() {
 		return Credentials.create(mpsAccountPrivateK, mpsAccountPublicK);

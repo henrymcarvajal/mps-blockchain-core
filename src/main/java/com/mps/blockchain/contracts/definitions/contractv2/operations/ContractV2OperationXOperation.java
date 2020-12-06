@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 
 @Component
 public class ContractV2OperationXOperation implements ContractOperation {
@@ -16,11 +17,10 @@ public class ContractV2OperationXOperation implements ContractOperation {
 
 	@Override
 	public void buildInputs(Map<String, String> inputs) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
-		// TODO Auto-generated method stub
+	public OperationResult execute(Map<String, Object> outputs) {
+		return OperationResult.SUCCESS;
 	}
 }

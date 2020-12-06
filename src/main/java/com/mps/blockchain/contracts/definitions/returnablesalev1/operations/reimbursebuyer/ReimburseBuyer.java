@@ -9,11 +9,12 @@ import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.gas.DefaultGasProvider;
 
-import com.mps.blockchain.CredentialsProvider;
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.returnablesalev1.ReturnableSaleV1;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.model.BuyerAccount;
@@ -22,7 +23,8 @@ import com.mps.blockchain.model.DeployedContract;
 import com.mps.blockchain.network.NetworkProvider;
 import com.mps.blockchain.persistence.services.BlockchainAccountRepositoryService;
 import com.mps.blockchain.persistence.services.DeployedContractsRepositoryService;
-import com.mps.blockchain.service.AccountManager;
+import com.mps.blockchain.service.accounts.AccountManager;
+import com.mps.blockchain.service.accounts.CredentialsProvider;
 
 @Component
 public class ReimburseBuyer implements ContractOperation {
@@ -55,7 +57,7 @@ public class ReimburseBuyer implements ContractOperation {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 
 		UUID buyerId = inputParameters.getBuyerId();
 		BuyerAccount buyerAccount = null;
@@ -68,7 +70,7 @@ public class ReimburseBuyer implements ContractOperation {
 				.findById(buyerAccount.getBlockchainAccountId());
 		if (buyerAccountOptional.isEmpty()) {
 			outputs.put("error", "buyer account not found: " + buyerAccount.getBlockchainAccountId());
-			return;
+			return OperationResult.ERROR;
 		}
 		DecryptedBlockchainAccount buyerBlockchainAccount = buyerAccountOptional.get();
 
@@ -77,22 +79,41 @@ public class ReimburseBuyer implements ContractOperation {
 
 		if (deployedContractOptional.isEmpty()) {
 			outputs.put("error", "contract not found: " + inputParameters.getContractId());
-			return;
+			return OperationResult.ERROR;
 		}
 		DeployedContract deployedContract = deployedContractOptional.get();
 
+		OperationResult result;
 		try {
-			Web3j web3 = networkProvider.getBlockchainNetwork();
+			Web3j web3j = networkProvider.getBlockchainNetwork();
 			Credentials credentials = credentialsProvider.getCredentials(buyerBlockchainAccount);
 
-			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1.load(deployedContract.getAddress(), web3, credentials,
+			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1.load(deployedContract.getAddress(), web3j, credentials,
 					new DefaultGasProvider());
 
 			RemoteCall<TransactionReceipt> transaction = returnableSaleV1.reimburseBuyer();
 			TransactionReceipt transactionReceipt = transaction.send();
+			
+			String transactionHash = transactionReceipt.getTransactionHash();
+
+			if (transactionHash != null) {
+
+				Optional<TransactionReceipt> transactionReceiptO;
+				do {
+					System.out.println("checking if transaction " + transactionHash + " is mined....");
+					EthGetTransactionReceipt ethGetTransactionReceiptResp = web3j
+							.ethGetTransactionReceipt(transactionHash).send();
+					transactionReceiptO = ethGetTransactionReceiptResp.getTransactionReceipt();
+					Thread.sleep(3000); // Wait 3 sec
+				} while (!transactionReceiptO.isPresent());
+
+			}
 			outputs.put("receipt", transactionReceipt);
+			result = OperationResult.SUCCESS;
 		} catch (Exception e) {
 			outputs.put("error", e);
+		    result = OperationResult.ERROR;
 		}
+		return result;
 	}
 }

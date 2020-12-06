@@ -1,4 +1,4 @@
-package com.mps.blockchain.accounts;
+package com.mps.blockchain.service.accounts.issuing;
 
 import java.security.SecureRandom;
 
@@ -9,8 +9,8 @@ import org.passay.PasswordGenerator;
 
 public class SecurePasswordGenerator {
 	
-	private static String ERROR_CODE = "INSUFICIENT_SPANISH";	
-	private static String SPANISH_CHARACTERS = "áéíóúüñAÉÍÓÚÜÑ";
+	private static final String ERROR_CODE = "INSUFICIENT_SPANISH";	
+	private static final String SPANISH_CHARACTERS = "áéíóúüñAÉÍÓÚÜÑ";
 	private static int MIN_PASSWORD_SIZE = 33;
 	private static int MAX_PASSWORD_SIZE = 65;
 	

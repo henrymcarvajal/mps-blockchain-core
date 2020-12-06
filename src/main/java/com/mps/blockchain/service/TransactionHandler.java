@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mps.blockchain.contracts.ContractManager;
 import com.mps.blockchain.contracts.definitions.ContractProvider;
 import com.mps.blockchain.contracts.definitions.OperationInvoker;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.controller.request.TransactionResponse;
 import com.mps.blockchain.model.Transaction;
@@ -20,9 +21,9 @@ import com.mps.blockchain.persistence.services.TransactionRepositoryService;
 @Service
 public class TransactionHandler {
 
-	private static String TRANSACTION_ID = "transactionId";
-	private static String CONTRACT_NAME_PARAM = "contractName";
-	private static String OPERATION_NAME_PARAM = "operationName";
+	private static final String MPS_TRANSACTION_ID = "mpsTransactionId";
+	private static final String CONTRACT_NAME_PARAM = "contractName";
+	private static final String OPERATION_NAME_PARAM = "operationName";
 
 	@Autowired
 	private ContractManager contractManager;
@@ -32,9 +33,9 @@ public class TransactionHandler {
 	
 	public TransactionResponse runTransaction(Map<String, String> inputs) throws MissingInputException {
 		
-		String transactionId = (String) inputs.get(TRANSACTION_ID);
+		String transactionId = (String) inputs.get(MPS_TRANSACTION_ID);
 		if (transactionId == null) {
-			throw new MissingInputException(TRANSACTION_ID);
+			throw new MissingInputException(MPS_TRANSACTION_ID);
 		}
 
 		String contractName = (String) inputs.get(CONTRACT_NAME_PARAM);
@@ -50,7 +51,7 @@ public class TransactionHandler {
 		ContractProvider contractProvider = contractManager.getContractProvider(contractName);
 		if (contractProvider == null) {
 			TransactionResponse transactionResponse = new TransactionResponse();
-			transactionResponse.setResult("Contract not available: '" + contractName + "'");
+			transactionResponse.setOperationResult("Contract not available: '" + contractName + "'");
 			return transactionResponse;
 		}
 
@@ -58,12 +59,12 @@ public class TransactionHandler {
 		if (!operationInvoker.supportsOperation(operationName)) {
 			TransactionResponse transactionResponse = new TransactionResponse();
 			transactionResponse
-					.setResult("Operation '" + operationName + "' not available for contract '" + contractName + "'");
+					.setOperationResult("Operation '" + operationName + "' not available for contract '" + contractName + "'");
 			return transactionResponse;
 		}
 
 		Transaction transaction = new Transaction();
-		transaction.setIdTransaction(UUID.fromString(transactionId));
+		transaction.setMpsTransactionId(UUID.fromString(transactionId));
 		transaction.setInputs(toString(inputs));
 		
 		transactionRepositoryService.create(transaction);
@@ -71,14 +72,21 @@ public class TransactionHandler {
 		operationInvoker.buildInputs(operationName, inputs);
 
 		Map<String, Object> outputs = new HashMap<>();
-		operationInvoker.execute(outputs);
+		OperationResult result = operationInvoker.execute(outputs);
 		
+		transaction.setResult(result.getValue());
 		transaction.setOutputs(toString(outputs));
 		transactionRepositoryService.update(transaction);
 
 		TransactionResponse transactionResponse = new TransactionResponse();
-		transactionResponse.setResult("Execution success");
-		transactionResponse.setData(outputs);
+		transactionResponse.setTransactionId(transaction.getId());
+		transactionResponse.setOperationResult(result.getValue());
+		if (outputs.containsKey("receipt")) {
+			outputs.remove("receipt");
+		}
+		if (!outputs.isEmpty()) {
+			transactionResponse.setData(outputs);
+		}
 		return transactionResponse;
 	}
 	

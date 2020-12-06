@@ -9,7 +9,7 @@ import com.mps.blockchain.contracts.definitions.OperationInvoker;
 @Service
 public class ReturnableSaleProvider implements ContractProvider {
 
-	private static String PROVIDER_NAME = "ReturnableSaleV1";
+	private static final String PROVIDER_NAME = "ReturnableSaleV1";
 
 	@Autowired
 	private ReturnableSaleOperationInvoker invoker;

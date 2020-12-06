@@ -1,4 +1,4 @@
-package com.mps.blockchain.accounts;
+package com.mps.blockchain.service.accounts.issuing;
 
 public class BIP39WordList {
 
@@ -9,7 +9,7 @@ public class BIP39WordList {
 		return null;
 	}
 
-	private static String[] wordList = new String[] { "abandon", "ability", "able", "about", "above", "absent",
+	private static final String[] wordList = new String[] { "abandon", "ability", "able", "about", "above", "absent",
 			"absorb", "abstract", "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
 			"acoustic", "acquire", "across", "act", "action", "actor", "actress", "actual", "adapt", "add", "addict",
 			"address", "adjust", "admit", "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid",
@@ -195,6 +195,6 @@ public class BIP39WordList {
 			"work", "world", "worry", "worth", "wrap", "wreck", "wrestle", "wrist", "write", "wrong", "yard", "year",
 			"yellow", "you", "young", "youth", "zebra", "zero", "zone", "zoo" };
 
-	public static int BIP39_UPPER_LIMIT = wordList.length;
+	public static final int BIP39_UPPER_LIMIT = wordList.length;
 
 }

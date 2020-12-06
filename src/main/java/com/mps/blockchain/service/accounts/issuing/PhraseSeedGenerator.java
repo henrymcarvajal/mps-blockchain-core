@@ -1,4 +1,4 @@
-package com.mps.blockchain.accounts;
+package com.mps.blockchain.service.accounts.issuing;
 
 import java.security.SecureRandom;
 import java.util.Iterator;

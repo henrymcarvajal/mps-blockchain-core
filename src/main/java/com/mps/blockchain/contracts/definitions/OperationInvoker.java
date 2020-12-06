@@ -7,6 +7,6 @@ import com.mps.blockchain.contracts.exceptions.MissingInputException;
 public interface OperationInvoker {
 
 	void buildInputs(String operationName, Map<String, String> inputs) throws MissingInputException;
-	void execute(Map<String, Object> outputs);
+	OperationResult execute(Map<String, Object> outputs);
 	boolean supportsOperation(String operationName);
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
 import com.mps.blockchain.contracts.definitions.OperationInvoker;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.compraventa.operations.deploy.CompraventaDeploy;
 import com.mps.blockchain.contracts.definitions.compraventa.operations.releasefunds.CompraventaReleaseFunds;
 import com.mps.blockchain.contracts.definitions.compraventa.operations.sendbuyerdeposit.CompraventaSendBuyerDeposit;
@@ -53,9 +54,9 @@ public class CompraventaOperationInvoker implements OperationInvoker {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 		ContractOperation operation = this.availableOperations.get(currentOperation);
-		operation.execute(outputs);
+		return operation.execute(outputs);
 	}
 
 	@Override

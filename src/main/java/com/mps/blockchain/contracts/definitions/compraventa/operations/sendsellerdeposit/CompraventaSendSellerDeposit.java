@@ -17,6 +17,7 @@ import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.compraventa.Compraventa;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.model.DecryptedBlockchainAccount;
@@ -29,7 +30,7 @@ import com.mps.blockchain.persistence.services.DeployedContractsRepositoryServic
 @Component
 public class CompraventaSendSellerDeposit implements ContractOperation {
 
-	private static String OPERATION_NAME = "SendSellerDeposit";
+	private static final String OPERATION_NAME = "SendSellerDeposit";
 
 	@Autowired
 	private SellerAccountRepository sellerAccountRepository;
@@ -56,12 +57,12 @@ public class CompraventaSendSellerDeposit implements ContractOperation {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 
 		Optional<SellerAccount> sellerAccountOptional = sellerAccountRepository
 				.findByMpsSellerId(inputParameters.getSellerId());
 		if (sellerAccountOptional.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		SellerAccount sellerAccount = sellerAccountOptional.get();
@@ -69,7 +70,7 @@ public class CompraventaSendSellerDeposit implements ContractOperation {
 		Optional<DecryptedBlockchainAccount> blockchainAccountO = blockchainAccountRepositoryService
 				.findById(sellerAccount.getBlockchainAccountId());
 		if (blockchainAccountO.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		DecryptedBlockchainAccount sellerBlockchainAccount = blockchainAccountO.get();
@@ -77,7 +78,7 @@ public class CompraventaSendSellerDeposit implements ContractOperation {
 		Optional<DeployedContract> deployedContractO = deployedContractsRepositoryService
 				.findById(inputParameters.getContractId());
 		if (deployedContractO.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		DeployedContract deployedContract = deployedContractO.get();
@@ -96,5 +97,6 @@ public class CompraventaSendSellerDeposit implements ContractOperation {
 		} catch (Exception e) {
 			outputs.put("error", e);
 		}
+		return OperationResult.SUCCESS;
 	}
 }

@@ -16,32 +16,36 @@ public class Transaction {
 	@Id
 	@GeneratedValue
 	private UUID id;
-	private UUID idTransaction;
+	@Column(name = "mps_transaction_id")
+	private UUID mpsTransactionId;
 	private String inputs;
 	private String outputs;
-
+	@Column(name = "transaction_result")
+	private String result;
+	
 	@Column(name = "created_date", nullable = false, updatable = false)
 	private LocalDateTime createdDate;
 	@Column(name = "modified_date")
 	private LocalDateTime modifiedDate;
 
 	public Transaction() {
+		this.createdDate = LocalDateTime.now();
 	}
 
 	public UUID getId() {
-		return idTransaction;
+		return mpsTransactionId;
 	}
 
 	public void setId(UUID id) {
 		this.id = id;
 	}	
 	
-	public UUID getIdTransaction() {
-		return idTransaction;
+	public UUID getMpsTransactionId() {
+		return mpsTransactionId;
 	}
 
-	public void setIdTransaction(UUID idTransaction) {
-		this.idTransaction = idTransaction;
+	public void setMpsTransactionId(UUID idTransaction) {
+		this.mpsTransactionId = idTransaction;
 	}
 
 	public String getInputs() {
@@ -58,6 +62,14 @@ public class Transaction {
 
 	public void setOutputs(String outputs) {
 		this.outputs = outputs;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
 	}
 
 	public LocalDateTime getCreatedDate() {

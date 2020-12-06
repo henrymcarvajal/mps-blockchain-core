@@ -19,19 +19,20 @@ import org.web3j.utils.Convert.Unit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.compraventa.Compraventa;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.model.BuyerAccount;
 import com.mps.blockchain.model.DeployedContract;
 import com.mps.blockchain.model.SellerAccount;
 import com.mps.blockchain.persistence.services.DeployedContractsRepositoryService;
-import com.mps.blockchain.service.AccountManager;
+import com.mps.blockchain.service.accounts.AccountManager;
 
 @Component
 public class CompraventaDeploy implements ContractOperation {
 
-	private static String OPERATION_NAME = "Deploy";
-	private static UUID CONTRACT_ID = UUID.fromString("ebd1a631-c08d-4294-aebb-3762c39afc90");
+	private static final String OPERATION_NAME = "Deploy";
+	private static final UUID CONTRACT_ID = UUID.fromString("ebd1a631-c08d-4294-aebb-3762c39afc90");
 
 	@Value("${blockchain.network.endpoint}")
 	private String networkEndpoint;
@@ -77,7 +78,7 @@ public class CompraventaDeploy implements ContractOperation {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 		setupAccounts();
 		Web3j web3 = Web3j.build(new HttpService(networkEndpoint));
 		Credentials credentials = Credentials.create(mpsAccountPrivateK, mpsAccountPublicK);
@@ -110,6 +111,7 @@ public class CompraventaDeploy implements ContractOperation {
 		deployedContractsRepositoryService.create(contract);
 
 		outputs.put("contractId", contract.getId());
+		return OperationResult.SUCCESS;
 	}
 
 	private String toString(Object object) {

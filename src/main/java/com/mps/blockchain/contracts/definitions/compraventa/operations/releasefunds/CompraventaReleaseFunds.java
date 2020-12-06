@@ -14,6 +14,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.compraventa.Compraventa;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.model.BuyerAccount;
@@ -26,7 +27,7 @@ import com.mps.blockchain.persistence.services.DeployedContractsRepositoryServic
 @Component
 public class CompraventaReleaseFunds implements ContractOperation {
 
-	private static String OPERATION_NAME = "ReleaseFunds";
+	private static final String OPERATION_NAME = "ReleaseFunds";
 
 	@Autowired
 	private BuyerAccountRepository buyerAccountRepository;
@@ -53,12 +54,12 @@ public class CompraventaReleaseFunds implements ContractOperation {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 
 		Optional<BuyerAccount> buyerAccountOptional = buyerAccountRepository
 				.findByMpsBuyerId(inputParameters.getBuyerId());
 		if (buyerAccountOptional.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		BuyerAccount buyerAccount = buyerAccountOptional.get();
@@ -66,7 +67,7 @@ public class CompraventaReleaseFunds implements ContractOperation {
 		Optional<DecryptedBlockchainAccount> blockchainAccountO = blockchainAccountRepositoryService
 				.findById(buyerAccount.getBlockchainAccountId());
 		if (blockchainAccountO.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		DecryptedBlockchainAccount buyerBlockchainAccount = blockchainAccountO.get();
@@ -74,7 +75,7 @@ public class CompraventaReleaseFunds implements ContractOperation {
 		Optional<DeployedContract> deployedContractO = deployedContractsRepositoryService
 				.findById(inputParameters.getContractId());
 		if (deployedContractO.isEmpty()) {
-			return;
+			return OperationResult.ERROR;
 		}
 
 		DeployedContract deployedContract = deployedContractO.get();
@@ -93,5 +94,6 @@ public class CompraventaReleaseFunds implements ContractOperation {
 		} catch (Exception e) {
 			outputs.put("error", e);
 		}
+		return OperationResult.SUCCESS;
 	}
 }

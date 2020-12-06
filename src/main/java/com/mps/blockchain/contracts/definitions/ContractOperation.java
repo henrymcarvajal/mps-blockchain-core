@@ -8,5 +8,5 @@ public interface ContractOperation {
 
 	String getOperationName();
 	void buildInputs(Map<String, String> inputs) throws MissingInputException;
-	void execute(Map<String, Object> outputs);
+	OperationResult execute(Map<String, Object> outputs);
 }

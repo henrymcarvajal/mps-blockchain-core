@@ -9,7 +9,7 @@ import com.mps.blockchain.contracts.definitions.OperationInvoker;
 @Service
 public class ContractV1Provider implements ContractProvider {
 
-	private static String PROVIDER_NAME = "ContractV1";
+	private static final String PROVIDER_NAME = "ContractV1";
 
 	@Autowired
 	private ContractV1OperationInvoker invoker;

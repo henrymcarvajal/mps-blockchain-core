@@ -59,7 +59,6 @@ public class Compraventa extends Contract {
 
     public static final Event CAMBIOESTADO_EVENT = new Event("CambioEstado", 
             Arrays.<TypeReference<?>>asList());
-    ;
 
     @Deprecated
     protected Compraventa(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {

@@ -1,4 +1,4 @@
-package com.mps.blockchain.accounts;
+package com.mps.blockchain.service.accounts.issuing;
 
 import org.springframework.stereotype.Component;
 import org.web3j.crypto.Bip32ECKeyPair;

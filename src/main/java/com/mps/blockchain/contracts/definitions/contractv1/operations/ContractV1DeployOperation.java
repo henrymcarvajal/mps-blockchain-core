@@ -5,11 +5,12 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 
 @Component
 public class ContractV1DeployOperation implements ContractOperation {
 
-	private static String OPERATION_NAME = "Deploy";
+	private static final String OPERATION_NAME = "Deploy";
 	
 	@Override
 	public String getOperationName() {
@@ -23,7 +24,7 @@ public class ContractV1DeployOperation implements ContractOperation {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
-		// TODO Auto-generated method stub
+	public OperationResult execute(Map<String, Object> outputs) {
+		return OperationResult.SUCCESS;
 	}
 }

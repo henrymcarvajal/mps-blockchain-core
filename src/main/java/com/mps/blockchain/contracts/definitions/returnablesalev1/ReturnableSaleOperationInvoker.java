@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
 import com.mps.blockchain.contracts.definitions.OperationInvoker;
+import com.mps.blockchain.contracts.definitions.OperationResult;
 import com.mps.blockchain.contracts.definitions.returnablesalev1.operations.deploy.Deploy;
 import com.mps.blockchain.contracts.definitions.returnablesalev1.operations.fundbuyerfee.FundBuyerFee;
 import com.mps.blockchain.contracts.definitions.returnablesalev1.operations.fundsellerfee.FundSellerFee;
@@ -89,9 +90,9 @@ public class ReturnableSaleOperationInvoker implements OperationInvoker {
 	}
 
 	@Override
-	public void execute(Map<String, Object> outputs) {
+	public OperationResult execute(Map<String, Object> outputs) {
 		ContractOperation operation = this.availableOperations.get(currentOperation);
-		operation.execute(outputs);
+		return operation.execute(outputs);
 	}
 
 	@Override
