@@ -1,5 +1,6 @@
 package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.fundsellerfee;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
@@ -10,6 +11,8 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.utils.Convert;
+import org.web3j.utils.Convert.Unit;
 
 import com.mps.blockchain.contracts.definitions.ContractOperation;
 import com.mps.blockchain.contracts.definitions.OperationResult;
@@ -19,6 +22,8 @@ import com.mps.blockchain.model.DeployedContract;
 import com.mps.blockchain.network.NetworkProvider;
 import com.mps.blockchain.persistence.services.DeployedContractsRepositoryService;
 import com.mps.blockchain.service.accounts.CredentialsProvider;
+import com.mps.blockchain.service.currencies.Currency;
+import com.mps.blockchain.service.currencies.CurrencyConvertionService;
 
 @Component
 public class FundSellerFee implements ContractOperation {
@@ -28,6 +33,9 @@ public class FundSellerFee implements ContractOperation {
 
 	@Autowired
 	private CredentialsProvider credentialsProvider;
+
+	@Autowired
+	private CurrencyConvertionService currencyConvertionService;
 
 	@Autowired
 	private DeployedContractsRepositoryService deployedContractsRepositoryService;
@@ -64,13 +72,17 @@ public class FundSellerFee implements ContractOperation {
 			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1.load(deployedContract.getAddress(), web3, credentials,
 					new DefaultGasProvider());
 
-			RemoteCall<TransactionReceipt> transaction = returnableSaleV1.fundSellerFee(inputParameters.getSellerFee());
+			BigDecimal amount = currencyConvertionService.convert(Currency.FIAT.COLOMBIAN_PESO, Currency.CRYPTO.XDAI,
+					inputParameters.getSellerFee());
+			BigDecimal weiAmount = Convert.toWei(amount, Unit.ETHER);
+
+			RemoteCall<TransactionReceipt> transaction = returnableSaleV1.fundSellerFee(weiAmount.toBigIntegerExact());
 			TransactionReceipt transactionReceipt = transaction.send();
 			outputs.put("receipt", transactionReceipt);
 			result = OperationResult.SUCCESS;
 		} catch (Exception e) {
 			outputs.put("error", e);
-		    result = OperationResult.ERROR;
+			result = OperationResult.ERROR;
 		}
 		return result;
 	}

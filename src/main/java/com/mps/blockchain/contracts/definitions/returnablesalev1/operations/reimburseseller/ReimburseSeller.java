@@ -2,7 +2,6 @@ package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.rei
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,12 +57,7 @@ public class ReimburseSeller implements ContractOperation {
 	@Override
 	public OperationResult execute(Map<String, Object> outputs) {
 
-		UUID sellerId = inputParameters.getSellerId();
-		SellerAccount sellerAccount = null;
-		if (sellerId != null) {
-			outputs.put("error", "seller not found: " + inputParameters.getSellerId());
-			sellerAccount = accountManager.getSellerAccount(sellerId);
-		}
+		SellerAccount sellerAccount = accountManager.getSellerAccount(inputParameters.getSellerId());
 
 		Optional<DecryptedBlockchainAccount> sellerAccountOptional = blockchainAccountRepositoryService
 				.findById(sellerAccount.getBlockchainAccountId());
@@ -84,10 +78,10 @@ public class ReimburseSeller implements ContractOperation {
 
 		OperationResult result;
 		try {
-			Web3j web3 = networkProvider.getBlockchainNetwork();
+			Web3j web3j = networkProvider.getBlockchainNetwork();
 			Credentials credentials = credentialsProvider.getCredentials(sellerBlockchainAccount);
 
-			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1.load(deployedContract.getAddress(), web3, credentials,
+			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1.load(deployedContract.getAddress(), web3j, credentials,
 					new DefaultGasProvider());
 
 			RemoteCall<TransactionReceipt> transaction = returnableSaleV1.reimburseSeller();

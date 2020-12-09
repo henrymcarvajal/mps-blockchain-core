@@ -1,5 +1,6 @@
 package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.deploy;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,6 +11,8 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.utils.Convert;
+import org.web3j.utils.Convert.Unit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +30,8 @@ import com.mps.blockchain.persistence.services.DeployedContractsRepositoryServic
 import com.mps.blockchain.service.accounts.AccountFunder;
 import com.mps.blockchain.service.accounts.AccountManager;
 import com.mps.blockchain.service.accounts.CredentialsProvider;
+import com.mps.blockchain.service.currencies.Currency;
+import com.mps.blockchain.service.currencies.CurrencyConvertionService;
 
 @Component
 public class Deploy implements ContractOperation {
@@ -42,6 +47,9 @@ public class Deploy implements ContractOperation {
 
 	@Autowired
 	private AccountFunder accountFunder;
+
+	@Autowired
+	private CurrencyConvertionService currencyConvertionService;
 
 	@Autowired
 	private BlockchainAccountRepositoryService blockchainAccountRepositoryService;
@@ -90,14 +98,19 @@ public class Deploy implements ContractOperation {
 			return OperationResult.ERROR;
 		}
 		DecryptedBlockchainAccount buyerBlockchainAccount = buyerAccountOptional.get();
-				
-		try {			
+
+		try {
 			Web3j web3j = networkProvider.getBlockchainNetwork();
 			Credentials credentials = credentialsProvider.getMainCredentials();
 
+			BigDecimal amount = currencyConvertionService.convert(Currency.FIAT.COLOMBIAN_PESO, Currency.CRYPTO.XDAI,
+					inputParameters.getContractValue());
+
+			BigDecimal weiAmount = Convert.toWei(amount, Unit.ETHER);
+
 			ReturnableSaleV1 returnableSaleV1 = ReturnableSaleV1
 					.deploy(web3j, credentials, new DefaultGasProvider(), sellerBlockchainAccount.getAddress(),
-							buyerBlockchainAccount.getAddress(), inputParameters.getContractValue())
+							buyerBlockchainAccount.getAddress(), weiAmount.toBigIntegerExact())
 					.send();
 			String contractAddress = returnableSaleV1.getContractAddress();
 			Optional<TransactionReceipt> optionalReceipt = returnableSaleV1.getTransactionReceipt();
@@ -118,7 +131,7 @@ public class Deploy implements ContractOperation {
 			outputs.put("contractId", contract.getId());
 		} catch (Exception e) {
 			outputs.put("error", e);
-		    return OperationResult.ERROR;
+			return OperationResult.ERROR;
 		}
 
 		if (accountFunder.fundSellerAddress(sellerBlockchainAccount.getAddress(), outputs) == OperationResult.ERROR) {
@@ -133,7 +146,7 @@ public class Deploy implements ContractOperation {
 
 		return OperationResult.SUCCESS;
 	}
-	
+
 	private String toString(Object object) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {

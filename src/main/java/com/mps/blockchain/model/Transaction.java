@@ -33,7 +33,7 @@ public class Transaction {
 	}
 
 	public UUID getId() {
-		return mpsTransactionId;
+		return id;
 	}
 
 	public void setId(UUID id) {

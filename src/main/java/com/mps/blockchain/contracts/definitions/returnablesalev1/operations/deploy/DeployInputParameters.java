@@ -1,6 +1,6 @@
 package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.deploy;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ class DeployInputParameters {
 
 	private UUID sellerId;
 	private UUID buyerId;
-	private BigInteger contractValue;
+	private BigDecimal contractValue;
 
 	public UUID getSellerId() {
 		return sellerId;
@@ -29,11 +29,11 @@ class DeployInputParameters {
 		this.buyerId = buyerId;
 	}
 
-	public BigInteger getContractValue() {
+	public BigDecimal getContractValue() {
 		return contractValue;
 	}
 
-	public void setContractValue(BigInteger contractValue) {
+	public void setContractValue(BigDecimal contractValue) {
 		this.contractValue = contractValue;
 	}
 
@@ -51,7 +51,7 @@ class DeployInputParameters {
 		DeployInputParameters inputParameters = new DeployInputParameters();
 		inputParameters.setSellerId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_SELLER)));
 		inputParameters.setBuyerId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_BUYER)));
-		inputParameters.setContractValue(new BigInteger(inputs.get(ReturnableSaleInputNames.CONTRACT_VALUE)));
+		inputParameters.setContractValue(new BigDecimal(inputs.get(ReturnableSaleInputNames.CONTRACT_VALUE)));
 
 		return inputParameters;
 	}

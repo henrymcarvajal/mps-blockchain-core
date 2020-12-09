@@ -2,14 +2,12 @@ package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.rei
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteCall;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.gas.DefaultGasProvider;
 
@@ -59,12 +57,7 @@ public class ReimburseBuyer implements ContractOperation {
 	@Override
 	public OperationResult execute(Map<String, Object> outputs) {
 
-		UUID buyerId = inputParameters.getBuyerId();
-		BuyerAccount buyerAccount = null;
-		if (buyerId != null) {
-			outputs.put("error", "buyer not found: " + inputParameters.getBuyerId());
-			buyerAccount = accountManager.getBuyerAccount(buyerId);
-		}
+		BuyerAccount buyerAccount = accountManager.getBuyerAccount(inputParameters.getBuyerId());
 
 		Optional<DecryptedBlockchainAccount> buyerAccountOptional = blockchainAccountRepositoryService
 				.findById(buyerAccount.getBlockchainAccountId());
@@ -93,21 +86,6 @@ public class ReimburseBuyer implements ContractOperation {
 
 			RemoteCall<TransactionReceipt> transaction = returnableSaleV1.reimburseBuyer();
 			TransactionReceipt transactionReceipt = transaction.send();
-			
-			String transactionHash = transactionReceipt.getTransactionHash();
-
-			if (transactionHash != null) {
-
-				Optional<TransactionReceipt> transactionReceiptO;
-				do {
-					System.out.println("checking if transaction " + transactionHash + " is mined....");
-					EthGetTransactionReceipt ethGetTransactionReceiptResp = web3j
-							.ethGetTransactionReceipt(transactionHash).send();
-					transactionReceiptO = ethGetTransactionReceiptResp.getTransactionReceipt();
-					Thread.sleep(3000); // Wait 3 sec
-				} while (!transactionReceiptO.isPresent());
-
-			}
 			outputs.put("receipt", transactionReceipt);
 			result = OperationResult.SUCCESS;
 		} catch (Exception e) {

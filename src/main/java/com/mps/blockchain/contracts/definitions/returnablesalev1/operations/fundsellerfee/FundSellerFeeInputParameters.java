@@ -1,6 +1,6 @@
 package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.fundsellerfee;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,7 +10,7 @@ import com.mps.blockchain.contracts.exceptions.MissingInputException;
 class FundSellerFeeInputParameters {
 
 	private UUID contractId;
-	private BigInteger sellerFee;
+	private BigDecimal sellerFee;
 
 	public UUID getContractId() {
 		return contractId;
@@ -20,11 +20,11 @@ class FundSellerFeeInputParameters {
 		this.contractId = contractId;
 	}
 
-	public BigInteger getSellerFee() {
+	public BigDecimal getSellerFee() {
 		return sellerFee;
 	}
 
-	public void setSellerFee(BigInteger contractFee) {
+	public void setSellerFee(BigDecimal contractFee) {
 		this.sellerFee = contractFee;
 	}
 
@@ -38,7 +38,7 @@ class FundSellerFeeInputParameters {
 
 		FundSellerFeeInputParameters inputParameters = new FundSellerFeeInputParameters();
 		inputParameters.setContractId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_ID)));
-		inputParameters.setSellerFee(new BigInteger(inputs.get(ReturnableSaleInputNames.SELLER_FEE)));
+		inputParameters.setSellerFee(new BigDecimal(inputs.get(ReturnableSaleInputNames.SELLER_FEE)));
 
 		return inputParameters;
 	}

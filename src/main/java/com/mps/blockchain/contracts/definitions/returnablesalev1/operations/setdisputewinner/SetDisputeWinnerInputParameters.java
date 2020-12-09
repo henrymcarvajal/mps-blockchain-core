@@ -1,5 +1,6 @@
 package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.setdisputewinner;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
@@ -11,8 +12,8 @@ class SetDisputeWinnerInputParameters {
 
 	private UUID contractId;
 	private BigInteger disputeWinner;
-	private BigInteger buyerCharges;
-	private BigInteger sellerCharges;
+	private BigDecimal buyerCharges;
+	private BigDecimal sellerCharges;
 
 	public UUID getContractId() {
 		return contractId;
@@ -30,19 +31,19 @@ class SetDisputeWinnerInputParameters {
 		this.disputeWinner = winner;
 	}
 
-	public BigInteger getBuyerCharges() {
+	public BigDecimal getBuyerCharges() {
 		return buyerCharges;
 	}
 
-	public void setBuyerCharges(BigInteger buyerCharges) {
+	public void setBuyerCharges(BigDecimal buyerCharges) {
 		this.buyerCharges = buyerCharges;
 	}
 
-	public BigInteger getSellerCharges() {
+	public BigDecimal getSellerCharges() {
 		return sellerCharges;
 	}
 
-	public void setSellerCharges(BigInteger sellerCharges) {
+	public void setSellerCharges(BigDecimal sellerCharges) {
 		this.sellerCharges = sellerCharges;
 	}
 
@@ -63,8 +64,8 @@ class SetDisputeWinnerInputParameters {
 		SetDisputeWinnerInputParameters inputParameters = new SetDisputeWinnerInputParameters();
 		inputParameters.setContractId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_ID)));
 		inputParameters.setDisputeWinner(new BigInteger(inputs.get(ReturnableSaleInputNames.DISPUTE_WINNER)));
-		inputParameters.setBuyerCharges(new BigInteger(inputs.get(ReturnableSaleInputNames.SELLER_CHARGES)));
-		inputParameters.setSellerCharges(new BigInteger(inputs.get(ReturnableSaleInputNames.BUYER_CHARGES)));
+		inputParameters.setBuyerCharges(new BigDecimal(inputs.get(ReturnableSaleInputNames.SELLER_CHARGES)));
+		inputParameters.setSellerCharges(new BigDecimal(inputs.get(ReturnableSaleInputNames.BUYER_CHARGES)));
 
 		return inputParameters;
 	}
