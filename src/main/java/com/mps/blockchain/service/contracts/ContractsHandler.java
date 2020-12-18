@@ -1,4 +1,4 @@
-package com.mps.blockchain.service;
+package com.mps.blockchain.service.contracts;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ import com.mps.blockchain.model.Transaction;
 import com.mps.blockchain.persistence.services.TransactionRepositoryService;
 
 @Service
-public class TransactionHandler {
+public class ContractsHandler {
 
 	private static final String MPS_TRANSACTION_ID = "mpsTransactionId";
 	private static final String CONTRACT_NAME_PARAM = "contractName";

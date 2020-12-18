@@ -49,7 +49,7 @@ public class AccountFunder {
 			Web3j web3j = networkProvider.getBlockchainNetwork();
 
 			EthGetTransactionCount ethGetTransactionCount = web3j
-					.ethGetTransactionCount(credentialsProvider.getMainAddres(), DefaultBlockParameterName.LATEST)
+					.ethGetTransactionCount(credentialsProvider.getMainAddress(), DefaultBlockParameterName.LATEST)
 					.send();
 
 			BigInteger nonce = ethGetTransactionCount.getTransactionCount();

@@ -65,14 +65,14 @@ public class CompraventaDeploy implements ContractOperation {
 		UUID buyerId = inputParameters.getBuyerId();
 		BuyerAccount buyerAccount = null;
 		if (buyerId != null) {
-			buyerAccount = accountManager.getBuyerAccount(buyerId);
+			buyerAccount = accountManager.getBuyerAccount(buyerId, true);
 			inputParameters.setBuyerAccount(buyerAccount);
 		}
 
 		UUID sellerId = inputParameters.getSellerId();
 		SellerAccount sellerAccount = null;
 		if (sellerId != null) {
-			sellerAccount = accountManager.getSellerAccount(sellerId);
+			sellerAccount = accountManager.getSellerAccount(sellerId, true);
 			inputParameters.setSellerAccount(sellerAccount);
 		}
 	}
