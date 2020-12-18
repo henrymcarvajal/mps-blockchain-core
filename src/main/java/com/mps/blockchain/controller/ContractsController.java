@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.controller.request.TransactionResponse;
-import com.mps.blockchain.service.transactions.TransactionHandler;
+import com.mps.blockchain.service.contracts.ContractsHandler;
 
 @RestController
-@RequestMapping("/transact")
-public class TransactionController {
+@RequestMapping("/contracts")
+public class ContractsController {
 
 	@Autowired
-	private TransactionHandler transactionHandler;
+	private ContractsHandler contractsHandler;
 
 	@PostMapping
 	public TransactionResponse transact(@RequestBody Map<String, String> parameters) throws MissingInputException {
-		return transactionHandler.runTransaction(parameters);
+		return contractsHandler.runTransaction(parameters);
 	}
 
 	@GetMapping("/ping")

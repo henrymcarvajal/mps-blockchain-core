@@ -30,6 +30,10 @@ public class AccountManager {
 	private AccountIssuer accountIssuer;
 
 	public SellerAccount getSellerAccount(UUID mpsSellerId) {
+		return getSellerAccount(mpsSellerId, false);
+	}
+
+	public SellerAccount getSellerAccount(UUID mpsSellerId, boolean register) {
 		SellerAccount sellerAccount = null;
 		DecryptedBlockchainAccount blockchainAccount = null;
 
@@ -44,20 +48,26 @@ public class AccountManager {
 				return null;
 			}
 		} else {
-			blockchainAccount = accountIssuer.issueAccount();
-			blockchainAccountRepositoryService.create(blockchainAccount);
+			if (register) {
+				blockchainAccount = accountIssuer.issueAccount();
+				blockchainAccountRepositoryService.create(blockchainAccount);
 
-			sellerAccount = new SellerAccount();
-			sellerAccount.setMpsSellerId(mpsSellerId);
-			sellerAccount.setBlockchainAccountId(blockchainAccount.getId());
+				sellerAccount = new SellerAccount();
+				sellerAccount.setMpsSellerId(mpsSellerId);
+				sellerAccount.setBlockchainAccountId(blockchainAccount.getId());
 
-			sellerAccountRepository.save(sellerAccount);
+				sellerAccountRepository.save(sellerAccount);
+			}
 		}
 
 		return sellerAccount;
 	}
 
 	public BuyerAccount getBuyerAccount(UUID mpsBuyerId) {
+		return getBuyerAccount(mpsBuyerId, false);
+	}
+
+	public BuyerAccount getBuyerAccount(UUID mpsBuyerId, boolean register) {
 		BuyerAccount buyerAccount = null;
 		DecryptedBlockchainAccount blockchainAccount = null;
 
@@ -72,14 +82,16 @@ public class AccountManager {
 				return null;
 			}
 		} else {
-			blockchainAccount = accountIssuer.issueAccount();
-			blockchainAccountRepositoryService.create(blockchainAccount);
+			if (register) {
+				blockchainAccount = accountIssuer.issueAccount();
+				blockchainAccountRepositoryService.create(blockchainAccount);
 
-			buyerAccount = new BuyerAccount();
-			buyerAccount.setMpsBuyerId(mpsBuyerId);
-			buyerAccount.setBlockchainAccountId(blockchainAccount.getId());
+				buyerAccount = new BuyerAccount();
+				buyerAccount.setMpsBuyerId(mpsBuyerId);
+				buyerAccount.setBlockchainAccountId(blockchainAccount.getId());
 
-			buyerAccountRepository.save(buyerAccount);
+				buyerAccountRepository.save(buyerAccount);
+			}
 		}
 
 		return buyerAccount;
