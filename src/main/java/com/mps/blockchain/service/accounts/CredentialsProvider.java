@@ -18,7 +18,7 @@ public class CredentialsProvider {
 	@Value("${blockchain.mps.account.pubk}")
 	private String mpsAccountPublicK;
 
-	public String getMainAddres() {
+	public String getMainAddress() {
 		return mpsAccountAdress;
 	}
 	

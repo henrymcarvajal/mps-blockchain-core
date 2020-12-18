@@ -2,6 +2,7 @@ package com.mps.blockchain.contracts.definitions.returnablesalev1.operations.rei
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,17 @@ public class ReimburseBuyer implements ContractOperation {
 	@Override
 	public OperationResult execute(Map<String, Object> outputs) {
 
-		BuyerAccount buyerAccount = accountManager.getBuyerAccount(inputParameters.getBuyerId());
+		UUID buyerId = inputParameters.getBuyerId();
+		if (buyerId == null) {
+			throw new IllegalStateException("Call to buildInputs required: missing buyerId");
+		}
+
+		BuyerAccount buyerAccount;
+		buyerAccount = accountManager.getBuyerAccount(buyerId);
+		if (buyerAccount == null) {
+			outputs.put("error",  String.format("buyer not found: %s", buyerId));
+			return OperationResult.ERROR;
+		}
 
 		Optional<DecryptedBlockchainAccount> buyerAccountOptional = blockchainAccountRepositoryService
 				.findById(buyerAccount.getBlockchainAccountId());

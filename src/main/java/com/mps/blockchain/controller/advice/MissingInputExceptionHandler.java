@@ -17,7 +17,7 @@ public class MissingInputExceptionHandler {
 	@ExceptionHandler(MissingInputException.class)
 	public Map<String, String> handleMIssingInputExceptions(MissingInputException ex) {
 		Map<String, String> errors = new HashMap<>();
-		errors.put(ex.getFieldName(), "missing input");
+		errors.put("missing input", ex.getFieldName());
 		return errors;
 	}
 }

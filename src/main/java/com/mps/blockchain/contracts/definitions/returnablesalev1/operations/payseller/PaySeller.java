@@ -59,10 +59,15 @@ public class PaySeller implements ContractOperation {
 	public OperationResult execute(Map<String, Object> outputs) {
 
 		UUID sellerId = inputParameters.getSellerId();
-		SellerAccount sellerAccount = null;
-		if (sellerId != null) {
-			outputs.put("error", "seller not found: " + inputParameters.getSellerId());
-			sellerAccount = accountManager.getSellerAccount(sellerId);
+		if (sellerId == null) {
+			throw new IllegalStateException("Call to buildInputs required: missing sellerId");
+		}
+		
+		SellerAccount sellerAccount;
+		sellerAccount = accountManager.getSellerAccount(sellerId);
+		if (sellerAccount == null) {
+			outputs.put("error",  String.format("seller not found: %s", sellerId));
+			return OperationResult.ERROR;
 		}
 
 		Optional<DecryptedBlockchainAccount> sellerAccountOptional = blockchainAccountRepositoryService

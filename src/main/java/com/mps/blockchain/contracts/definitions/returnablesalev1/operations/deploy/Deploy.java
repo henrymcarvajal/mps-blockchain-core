@@ -72,17 +72,26 @@ public class Deploy implements ContractOperation {
 	@Override
 	public OperationResult execute(Map<String, Object> outputs) {
 		UUID sellerId = inputParameters.getSellerId();
-		SellerAccount sellerAccount = null;
-		if (sellerId != null) {
-			sellerAccount = accountManager.getSellerAccount(sellerId);
+		if (sellerId == null) {
+			throw new IllegalStateException("Call to buildInputs required: missing sellerId");
 		}
-
+		
+		SellerAccount sellerAccount;
+		sellerAccount = accountManager.getSellerAccount(sellerId, true);
+		
 		UUID buyerId = inputParameters.getBuyerId();
-		BuyerAccount buyerAccount = null;
-		if (buyerId != null) {
-			buyerAccount = accountManager.getBuyerAccount(buyerId);
+		if (buyerId == null) {
+			throw new IllegalStateException("Call to buildInputs required: missing buyerId");
 		}
-
+		
+		BuyerAccount buyerAccount = null;
+		buyerAccount = accountManager.getBuyerAccount(buyerId, true);
+		
+		BigDecimal contractValue = inputParameters.getContractValue();
+		if (contractValue == null) {
+			throw new IllegalStateException("Call to buildInputs required: missing contractValue");
+		}
+		
 		Optional<DecryptedBlockchainAccount> sellerAccountOptional = blockchainAccountRepositoryService
 				.findById(sellerAccount.getBlockchainAccountId());
 		if (sellerAccountOptional.isEmpty()) {
@@ -104,7 +113,7 @@ public class Deploy implements ContractOperation {
 			Credentials credentials = credentialsProvider.getMainCredentials();
 
 			BigDecimal amount = currencyConvertionService.convert(Currency.FIAT.COLOMBIAN_PESO, Currency.CRYPTO.XDAI,
-					inputParameters.getContractValue());
+					contractValue);
 
 			BigDecimal weiAmount = Convert.toWei(amount, Unit.ETHER);
 
