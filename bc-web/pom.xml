@@ -76,7 +76,7 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
+			<!--plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
             <executions>
@@ -95,7 +95,21 @@
                     </configuration>
                 </execution>
             </executions>
-        </plugin>
+        </plugin-->
+        <plugin>
+      <!-- Build an executable JAR -->
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <configuration>
+        <archive>
+          <manifest>
+            <addClasspath>true</addClasspath>
+            <classpathPrefix>lib/</classpathPrefix>
+            <mainClass>com.mps.blockchain.BlockchainBackendApplication</mainClass>
+          </manifest>
+        </archive>
+      </configuration>
+    </plugin>
 		</plugins>
 	</build>
 </project>
