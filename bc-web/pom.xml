@@ -11,6 +11,7 @@
 	</parent>
 
 	<artifactId>bc-web</artifactId>
+	<packaging>war</packaging>
 
 	<dependencies>
 		<dependency>
