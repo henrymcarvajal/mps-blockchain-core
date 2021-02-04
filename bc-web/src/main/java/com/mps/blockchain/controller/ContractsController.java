@@ -2,6 +2,8 @@ package com.mps.blockchain.controller;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,4 +31,9 @@ public class ContractsController {
 	public String getPing() {
 		return "Ping there!";
 	}
+	
+	@PostConstruct
+    private void postConstruct() {
+        System.out.println("Bean has been initilized!");
+    }
 }
