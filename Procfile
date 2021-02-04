@@ -1,2 +1,2 @@
-web: java $JAVA_OPTS -jar web/target/dependency/webapp-runner.jar --port $PORT web/target/*.war
-worker: sh worker/target/bin/worker
+web: java $JAVA_OPTS -jar bc-web/target/dependency/webapp-runner.jar --port $PORT bc-web/target/*.war
+worker: sh bc-worker/target/bin/worker
