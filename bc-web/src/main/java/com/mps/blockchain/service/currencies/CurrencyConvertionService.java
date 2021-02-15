@@ -18,7 +18,8 @@ public class CurrencyConvertionService {
     @Autowired
     private CurrenciesConverterRepository currenciesConverterRepository;
     
-    public BigDecimal convert(String sourceCurrency, String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+    public BigDecimal convert(String sourceCurrency, String targetCurrency, BigDecimal amount)
+            throws MissingCurrencyConversionException {
         if (sourceCurrency.equals(targetCurrency)) {
             return amount;
         }
@@ -27,15 +28,18 @@ public class CurrencyConvertionService {
         return convertPivotToTarget(targetCurrency, fromCurrencyToPivot);
     }
     
-    private BigDecimal convertSourceToPivot(String sourceCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+    private BigDecimal convertSourceToPivot(String sourceCurrency, BigDecimal amount)
+            throws MissingCurrencyConversionException {
         return convertCurrency(sourceCurrency, PIVOT_FIAT, amount);
     }
     
-    private BigDecimal convertPivotToTarget(String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+    private BigDecimal convertPivotToTarget(String targetCurrency, BigDecimal amount)
+            throws MissingCurrencyConversionException {
         return convertCurrency(PIVOT_FIAT, targetCurrency, amount);
     }
     
-    private Optional<CurrenciesConversion> getConverter(String from, String to) throws MissingCurrencyConversionException {
+    private Optional<CurrenciesConversion> getConverter(String from, String to)
+            throws MissingCurrencyConversionException {
         Optional<CurrenciesConversion> converterOptionalFromPivot = currenciesConverterRepository
                 .findByFromUnitAndToUnit(to, from);
         if (converterOptionalFromPivot.isPresent()) {
@@ -50,12 +54,13 @@ public class CurrencyConvertionService {
         throw new MissingCurrencyConversionException(String.format("No conversion available for %s and %s", to, from));
     }
     
-    private BigDecimal convertCurrency(String sourceCurrency, String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+    private BigDecimal convertCurrency(String sourceCurrency, String targetCurrency, BigDecimal amount)
+            throws MissingCurrencyConversionException {
         
         BigDecimal convertedCurrency = amount;
         
         if (!sourceCurrency.equalsIgnoreCase(targetCurrency)) {
-            Optional<CurrenciesConversion> conversionOptional = getConverter(sourceCurrency, targetCurrency);            
+            Optional<CurrenciesConversion> conversionOptional = getConverter(sourceCurrency, targetCurrency);
             CurrenciesConversion currenciesConversion = conversionOptional.get();
             
             BigDecimal factor;

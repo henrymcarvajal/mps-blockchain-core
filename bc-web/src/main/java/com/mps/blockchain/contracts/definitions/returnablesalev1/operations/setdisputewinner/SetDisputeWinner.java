@@ -14,10 +14,10 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
 
+import com.mps.blockchain.commons.contracts.ReturnableSaleV1;
 import com.mps.blockchain.commons.operations.GenericOperationOutputs;
 import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.contracts.definitions.ContractOperation;
-import com.mps.blockchain.contracts.definitions.returnablesalev1.ReturnableSaleV1;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 import com.mps.blockchain.model.DeployedContract;
 import com.mps.blockchain.network.NetworkProvider;

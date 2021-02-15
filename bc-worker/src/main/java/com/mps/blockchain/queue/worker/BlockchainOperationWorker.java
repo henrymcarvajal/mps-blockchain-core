@@ -56,48 +56,47 @@ public class BlockchainOperationWorker {
         
         // set the callback for message handling
         listenerContainer.setMessageListener(message -> {
-             
-                final BlockchainOperationQueueRequest blockchainOperationMessage = (BlockchainOperationQueueRequest) messageConverter
-                        .fromMessage(message);
-                LOGGER.info(String.format("Received from RabbitMQ: %s", blockchainOperationMessage));
+            
+            final BlockchainOperationQueueRequest blockchainOperationMessage = (BlockchainOperationQueueRequest) messageConverter
+                    .fromMessage(message);
+            LOGGER.info(String.format("Received from RabbitMQ: %s", blockchainOperationMessage));
+            
+            if (blockchainOperationMessage.getName() != null) {
                 
-                if (blockchainOperationMessage.getName() != null) {
-                    
-                    Optional<Operation> blockchainOperationOptional = blockchainManager
-                            .getOperation(blockchainOperationMessage.getName());
-                    
-                    if (blockchainOperationOptional.isPresent()) {
-                        LOGGER.info(String.format("Operation present: %s", blockchainOperationMessage.getName()));
-                        Operation blockchainOperation = blockchainOperationOptional.get();
-                        if (blockchainOperationMessage.getPayload() != null
-                                && !blockchainOperationMessage.getPayload().isEmpty()) {
-                            blockchainOperation.setInputs(blockchainOperationMessage.getPayload());
-                            Map<String, String> outputs = new HashMap<>();
-                            
-                            LOGGER.info("Executing operation... ");
-                            OperationResult result = blockchainOperation.execute(outputs);
-                            LOGGER.info(result.getValue());
-                            
-                            LOGGER.info("Sending results back... ");
-                            BlockchainOperationQueueResponse response = new BlockchainOperationQueueResponse();
-                            response.setOperationId(blockchainOperationMessage.getOperationId());
-                            response.setDate(LocalDateTime.now());
-                            response.setResult(result);
-                            response.setOutputs(outputs);
-                            client.sendUpdate(response);
-                            
-                        } else {
-                            LOGGER.info("No payload to process");
-                        }
+                Optional<Operation> blockchainOperationOptional = blockchainManager
+                        .getOperation(blockchainOperationMessage.getName());
+                
+                if (blockchainOperationOptional.isPresent()) {
+                    LOGGER.info(String.format("Operation present: %s", blockchainOperationMessage.getName()));
+                    Operation blockchainOperation = blockchainOperationOptional.get();
+                    if (blockchainOperationMessage.getPayload() != null
+                            && !blockchainOperationMessage.getPayload().isEmpty()) {
+                        blockchainOperation.setInputs(blockchainOperationMessage.getPayload());
+                        Map<String, String> outputs = new HashMap<>();
+                        
+                        LOGGER.info("Executing operation... ");
+                        OperationResult result = blockchainOperation.execute(outputs);
+                        LOGGER.info(result.getValue());
+                        
+                        LOGGER.info("Sending results back... ");
+                        BlockchainOperationQueueResponse response = new BlockchainOperationQueueResponse();
+                        response.setOperationId(blockchainOperationMessage.getOperationId());
+                        response.setDate(LocalDateTime.now());
+                        response.setResult(result);
+                        response.setOutputs(outputs);
+                        client.sendUpdate(response);
+                        
                     } else {
-                        LOGGER.info(String.format("No operation with name '%s'", blockchainOperationMessage.getName()));
+                        LOGGER.info("No payload to process");
                     }
                 } else {
-                    LOGGER.info("No name present");
+                    LOGGER.info(String.format("No operation with name '%s'", blockchainOperationMessage.getName()));
                 }
-                LOGGER.info("Message processed");
+            } else {
+                LOGGER.info("No name present");
             }
-        );
+            LOGGER.info("Message processed");
+        });
         
         // set a simple error handler
         listenerContainer.setErrorHandler(Throwable::printStackTrace);

@@ -13,7 +13,7 @@ public class MissingInputException extends Exception {
         super();
         this.fieldName = "";
     }
-
+    
     public MissingInputException(String fieldName) {
         super(fieldName);
         this.fieldName = fieldName;

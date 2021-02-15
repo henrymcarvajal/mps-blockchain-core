@@ -9,7 +9,7 @@ public class StringUtils {
     private static ObjectMapper mapper = new ObjectMapper();
     
     private StringUtils() {
-        // Empty implememtation
+        // Empty implementation
     }
     
     static {

@@ -66,13 +66,14 @@ public class Deploy implements Operation {
             
             if (optionalReceipt.isPresent()) {
                 TransactionReceipt transactionReceipt = optionalReceipt.get();
-                outputs.put(DeployContractMessageOutputParameters.TRANSACTION_RECEIPT, StringUtils.toString(transactionReceipt));
+                outputs.put(DeployContractMessageOutputParameters.TRANSACTION_RECEIPT,
+                        StringUtils.toString(transactionReceipt));
             }
             
             outputs.put(DeployContractMessageOutputParameters.CONTRACT_ADDRESS, contractAddress);
             return OperationResult.SUCCESS;
         } catch (Exception e) {
-            outputs.put(GenericOperationOutputs.ERROR_MESSAGE, StringUtils.toPrettyString(e));
+            outputs.put(GenericOperationOutputs.ERROR_MESSAGE, StringUtils.toString(e));
             return OperationResult.ERROR;
         }
     }

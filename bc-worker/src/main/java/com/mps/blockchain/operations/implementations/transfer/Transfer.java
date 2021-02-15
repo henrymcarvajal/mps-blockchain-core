@@ -24,24 +24,24 @@ import com.mps.blockchain.operations.Operation;
 import com.mps.blockchain.utils.StringUtils;
 
 public class Transfer implements Operation {
-
+    
     private Map<String, String> inputs;
-
+    
     @Override
     public String getName() {
         return TransferOperationMetadata.NAME;
     }
-
+    
     @Override
     public void setInputs(Map<String, String> inputs) {
         this.inputs = inputs;
     }
-
+    
     @Override
     public Map<String, String> getInputs() {
         return this.inputs;
     }
-
+    
     @Override
     public OperationResult execute(Map<String, String> outputs) {
         
@@ -55,30 +55,30 @@ public class Transfer implements Operation {
         try {
             Web3j web3j = Web3j.build(new HttpService(networkEndpoint));
             Credentials credentials = Credentials.create(mpsAccountPrivateK, mpsAccountPublicK);
-
+            
             EthGetTransactionCount ethGetTransactionCount = web3j
                     .ethGetTransactionCount(mpsMainAddress, DefaultBlockParameterName.LATEST).send();
-
+            
             BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-
+            
             BigInteger value = BigInteger.valueOf(Long.parseLong(transferAmount));
-
+            
             RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, DefaultGasProvider.GAS_PRICE,
                     DefaultGasProvider.GAS_LIMIT, transferAddress, value);
-
+            
             // Sign the transaction
             byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
             String hexSignedMessage = Numeric.toHexString(signedMessage);
-
+            
             EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexSignedMessage).send();
-
+            
             String transactionHash = ethSendTransaction.getTransactionHash();
-
+            
             if (transactionHash == null) {
                 outputs.put("error", "transaction hash was null for transfer account " + transferAddress);
                 return OperationResult.ERROR;
             }
-
+            
             Optional<TransactionReceipt> transactionReceipt;
             do {
                 EthGetTransactionReceipt ethGetTransactionReceiptResp = web3j.ethGetTransactionReceipt(transactionHash)
