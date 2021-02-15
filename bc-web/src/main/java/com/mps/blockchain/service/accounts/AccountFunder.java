@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.commons.operations.definitions.TransferOperationMetadata;
 import com.mps.blockchain.commons.queue.messages.BlockchainOperationQueueRequest;
 import com.mps.blockchain.commons.queue.operations.messages.transfer.TransferMessageInputParameters;
-import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.model.EnqueuedOperation;
 import com.mps.blockchain.network.NetworkProvider;
 import com.mps.blockchain.persistence.services.EnqueuedOperationRepositoryService;

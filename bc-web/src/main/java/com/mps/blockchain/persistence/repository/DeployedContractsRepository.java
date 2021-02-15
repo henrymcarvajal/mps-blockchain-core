@@ -9,5 +9,5 @@ import com.mps.blockchain.model.DeployedContract;
 
 @Repository
 public interface DeployedContractsRepository extends CrudRepository<DeployedContract, UUID> {
-
+    
 }

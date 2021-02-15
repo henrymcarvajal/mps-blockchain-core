@@ -10,7 +10,7 @@ import com.mps.blockchain.model.CurrenciesConversion;
 
 @Repository
 public interface CurrenciesConverterRepository extends CrudRepository<CurrenciesConversion, UUID> {
-	
-	Optional<CurrenciesConversion> findByFromUnitAndToUnit(String from, String to);
-
+    
+    Optional<CurrenciesConversion> findByFromUnitAndToUnit(String from, String to);
+    
 }

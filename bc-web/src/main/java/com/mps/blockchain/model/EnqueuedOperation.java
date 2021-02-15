@@ -19,7 +19,7 @@ import com.mps.blockchain.model.converters.JpaConverterBlockchainOperationQueueR
 public class EnqueuedOperation {
     
     @Id
-    //@GeneratedValue
+    // @GeneratedValue
     private UUID id;
     @Column(name = "transaction_id")
     private UUID transactionId;

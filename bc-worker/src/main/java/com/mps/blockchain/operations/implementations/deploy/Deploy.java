@@ -12,13 +12,14 @@ import org.web3j.tx.FastRawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 
+import com.mps.blockchain.commons.contracts.ReturnableSaleV1;
+import com.mps.blockchain.commons.operations.GenericOperationOutputs;
 import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.commons.operations.definitions.DeployOperationMetadata;
 import com.mps.blockchain.commons.queue.messages.GenericMessageInputParameters;
 import com.mps.blockchain.commons.queue.operations.messages.deploy.DeployContractMessageInputParameters;
 import com.mps.blockchain.commons.queue.operations.messages.deploy.DeployContractMessageOutputParameters;
 import com.mps.blockchain.operations.Operation;
-import com.mps.blockchain.operations.implementations.deploy.contracts.ReturnableSaleV1;
 import com.mps.blockchain.utils.StringUtils;
 
 public class Deploy implements Operation {
@@ -71,7 +72,7 @@ public class Deploy implements Operation {
             outputs.put(DeployContractMessageOutputParameters.CONTRACT_ADDRESS, contractAddress);
             return OperationResult.SUCCESS;
         } catch (Exception e) {
-            outputs.put("error", StringUtils.toPrettyString(e));
+            outputs.put(GenericOperationOutputs.ERROR_MESSAGE, StringUtils.toPrettyString(e));
             return OperationResult.ERROR;
         }
     }

@@ -10,19 +10,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OperationManager {
-
-	private Map<String, Operation> availableOperations;
-
-	@Autowired
-	public OperationManager(List<Operation> providers) {
-		availableOperations = providers.stream()
-				.collect(Collectors.toMap(Operation::getOperationName, Function.identity()));
-	}
-
-	public Operation getOperation(String operationName) {
-		if (availableOperations.containsKey(operationName)) {
-			return availableOperations.get(operationName);
-		}
-		return null;
-	}
+    
+    private Map<String, Operation> availableOperations;
+    
+    @Autowired
+    public OperationManager(List<Operation> providers) {
+        availableOperations = providers.stream()
+                .collect(Collectors.toMap(Operation::getOperationName, Function.identity()));
+    }
+    
+    public Operation getOperation(String operationName) {
+        if (availableOperations.containsKey(operationName)) {
+            return availableOperations.get(operationName);
+        }
+        return null;
+    }
 }

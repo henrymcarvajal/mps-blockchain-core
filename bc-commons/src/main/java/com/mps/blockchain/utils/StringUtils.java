@@ -8,6 +8,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class StringUtils {
     private static ObjectMapper mapper = new ObjectMapper();
     
+    private StringUtils() {
+        // Empty implememtation
+    }
+    
     static {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

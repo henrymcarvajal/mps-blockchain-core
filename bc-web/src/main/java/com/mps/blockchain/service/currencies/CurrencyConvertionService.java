@@ -1,6 +1,7 @@
 package com.mps.blockchain.service.currencies;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,71 +12,66 @@ import com.mps.blockchain.persistence.repository.CurrenciesConverterRepository;
 
 @Service
 public class CurrencyConvertionService {
-
-	private static final String PIVOT_FIAT = "USD";
-
-	@Autowired
-	private CurrenciesConverterRepository currenciesConverterRepository;
-
-	public enum FiatCurrency {
-		COLOMBIAN_PESO, UNITED_STATES_DOLLAR;
-	}
-
-	public enum CryptoCurrency {
-		XDAI;
-	}
-
-	public BigDecimal convert(String from, String to, BigDecimal amount) {
-		if (from.equalsIgnoreCase(to)) {
-			return amount;
-		}
-
-		BigDecimal fromCurrencyToPivot;
-		if (from.equalsIgnoreCase(PIVOT_FIAT)) {
-			fromCurrencyToPivot = amount.multiply(BigDecimal.ONE);
-		} else {
-			Optional<CurrenciesConversion> converterOptionalToPivot1 = currenciesConverterRepository
-					.findByFromUnitAndToUnit(from, PIVOT_FIAT);
-
-			if (converterOptionalToPivot1.isPresent()) {
-				fromCurrencyToPivot = amount.multiply(BigDecimal.valueOf(converterOptionalToPivot1.get().getToValue()));
-			} else {
-				Optional<CurrenciesConversion> converterOptionalToPivot2 = currenciesConverterRepository
-						.findByFromUnitAndToUnit(PIVOT_FIAT, from);
-
-				if (converterOptionalToPivot2.isPresent()) {
-					fromCurrencyToPivot = amount
-							.divide(BigDecimal.valueOf(converterOptionalToPivot2.get().getToValue()));
-				} else {
-					return BigDecimal.ZERO;
-				}
-			}
-		}
-
-		BigDecimal fromPivotToCurrency;
-		if (to.equalsIgnoreCase(PIVOT_FIAT)) {
-			fromPivotToCurrency = fromCurrencyToPivot.multiply(BigDecimal.ONE);
-		} else {
-			Optional<CurrenciesConversion> converterOptionalFromPivot1 = currenciesConverterRepository
-					.findByFromUnitAndToUnit(PIVOT_FIAT, to);
-
-			if (converterOptionalFromPivot1.isPresent()) {
-				fromPivotToCurrency = fromCurrencyToPivot
-						.multiply(BigDecimal.valueOf(converterOptionalFromPivot1.get().getToValue()));
-			} else {
-				Optional<CurrenciesConversion> converterOptionalFromPivot2 = currenciesConverterRepository
-						.findByFromUnitAndToUnit(to, PIVOT_FIAT);
-
-				if (converterOptionalFromPivot2.isPresent()) {
-					fromPivotToCurrency = fromCurrencyToPivot
-							.divide(BigDecimal.valueOf(converterOptionalFromPivot2.get().getToValue()));
-				} else {
-					return BigDecimal.ZERO;
-				}
-			}
-
-		}
-
-		return fromPivotToCurrency;
-	}
+    
+    private static final String PIVOT_FIAT = Currency.FIAT.US_DOLLAR;
+    
+    @Autowired
+    private CurrenciesConverterRepository currenciesConverterRepository;
+    
+    public BigDecimal convert(String sourceCurrency, String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+        if (sourceCurrency.equals(targetCurrency)) {
+            return amount;
+        }
+        
+        BigDecimal fromCurrencyToPivot = convertSourceToPivot(sourceCurrency, amount);
+        return convertPivotToTarget(targetCurrency, fromCurrencyToPivot);
+    }
+    
+    private BigDecimal convertSourceToPivot(String sourceCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+        return convertCurrency(sourceCurrency, PIVOT_FIAT, amount);
+    }
+    
+    private BigDecimal convertPivotToTarget(String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+        return convertCurrency(PIVOT_FIAT, targetCurrency, amount);
+    }
+    
+    private Optional<CurrenciesConversion> getConverter(String from, String to) throws MissingCurrencyConversionException {
+        Optional<CurrenciesConversion> converterOptionalFromPivot = currenciesConverterRepository
+                .findByFromUnitAndToUnit(to, from);
+        if (converterOptionalFromPivot.isPresent()) {
+            return converterOptionalFromPivot;
+        }
+        
+        converterOptionalFromPivot = currenciesConverterRepository.findByFromUnitAndToUnit(from, to);
+        if (converterOptionalFromPivot.isPresent()) {
+            return converterOptionalFromPivot;
+        }
+        
+        throw new MissingCurrencyConversionException(String.format("No conversion available for %s and %s", to, from));
+    }
+    
+    private BigDecimal convertCurrency(String sourceCurrency, String targetCurrency, BigDecimal amount) throws MissingCurrencyConversionException {
+        
+        BigDecimal convertedCurrency = amount;
+        
+        if (!sourceCurrency.equalsIgnoreCase(targetCurrency)) {
+            Optional<CurrenciesConversion> conversionOptional = getConverter(sourceCurrency, targetCurrency);            
+            CurrenciesConversion currenciesConversion = conversionOptional.get();
+            
+            BigDecimal factor;
+            BigDecimal divisor;
+            
+            if (sourceCurrency.equalsIgnoreCase(currenciesConversion.getFromUnit())) {
+                factor = BigDecimal.valueOf(currenciesConversion.getToValue());
+                divisor = BigDecimal.valueOf(currenciesConversion.getFromValue());
+            } else {
+                factor = BigDecimal.valueOf(currenciesConversion.getFromValue());
+                divisor = BigDecimal.valueOf(currenciesConversion.getToValue());
+            }
+            
+            convertedCurrency = factor.divide(divisor, MathContext.DECIMAL32).multiply(amount);
+        }
+        
+        return convertedCurrency;
+    }
 }

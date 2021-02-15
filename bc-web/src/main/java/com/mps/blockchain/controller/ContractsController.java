@@ -16,17 +16,17 @@ import com.mps.blockchain.service.contracts.ContractsHandler;
 @RestController
 @RequestMapping("/contracts")
 public class ContractsController {
-
-	@Autowired
-	private ContractsHandler contractsHandler;
-
-	@PostMapping
-	public TransactionResponse transact(@RequestBody Map<String, String> parameters) throws MissingInputException {
-		return contractsHandler.runTransaction(parameters);
-	}
-
-	@GetMapping("/ping")
-	public String getPing() {
-		return "Ping there!";
-	}
+    
+    @Autowired
+    private ContractsHandler contractsHandler;
+    
+    @PostMapping
+    public TransactionResponse transact(@RequestBody Map<String, String> parameters) throws MissingInputException {
+        return contractsHandler.runTransaction(parameters);
+    }
+    
+    @GetMapping("/ping")
+    public String getPing() {
+        return "Ping there!";
+    }
 }

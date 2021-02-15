@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/env")
 public class EnvController {
-
-	@Autowired
-	private Environment environment;
-	
-	@GetMapping("/profiles")
-	public String[] getProfiles() {
-		return environment.getActiveProfiles();
-	}
-
+    
+    @Autowired
+    private Environment environment;
+    
+    @GetMapping("/profiles")
+    public String[] getProfiles() {
+        return environment.getActiveProfiles();
+    }
+    
 }

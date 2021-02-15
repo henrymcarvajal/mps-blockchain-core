@@ -9,5 +9,5 @@ import com.mps.blockchain.model.BlockchainAccount;
 
 @Repository
 public interface BlockchainAccountRepository extends CrudRepository<BlockchainAccount, UUID> {
-
+    
 }

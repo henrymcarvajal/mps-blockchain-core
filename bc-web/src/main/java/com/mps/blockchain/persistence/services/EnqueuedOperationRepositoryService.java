@@ -17,18 +17,25 @@ public class EnqueuedOperationRepositoryService {
     private EnqueuedOperationRepository repository;
     
     public Optional<EnqueuedOperation> findById(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Illegal argument: id is null");
+        }
         return repository.findById(id);
     }
     
     public void create(EnqueuedOperation queuedOperation) {
+        if (queuedOperation == null) {
+            throw new IllegalArgumentException("Illegal argument: queuedOperation is null");
+        }
         queuedOperation.setCreatedDate(LocalDateTime.now());
         repository.save(queuedOperation);
     }
     
     public void update(EnqueuedOperation queuedOperation) {
-        if (queuedOperation != null) {
-            queuedOperation.setModifiedDate(LocalDateTime.now());
-            repository.save(queuedOperation);
+        if (queuedOperation == null) {
+            throw new IllegalArgumentException("Illegal argument: queuedOperation is null");
         }
+        queuedOperation.setModifiedDate(LocalDateTime.now());
+        repository.save(queuedOperation);
     }
 }

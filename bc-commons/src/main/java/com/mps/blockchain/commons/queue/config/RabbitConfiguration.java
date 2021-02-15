@@ -15,18 +15,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
     
-    private final String BLOCKCHAIN_QUEUE_NAME = "BLOCKCHAIN_QUEUE_NAME";
+    private static final String BLOCKCHAIN_QUEUE_NAME = "BLOCKCHAIN_QUEUE_NAME";
     private static final String BLOCKCHAIN_QUEUE_SERVICE_URL = "BLOCKCHAIN_QUEUE_SERVICE_URL";
+    private static String blockchainQueueName;
+    
+    static {
+        blockchainQueueName = CommonConfiguration.getEnvOrThrow(BLOCKCHAIN_QUEUE_NAME);
+    }
     
     @Bean
-    public ConnectionFactory connectionFactory() {
+    public ConnectionFactory connectionFactory() throws URISyntaxException {
         
-        final URI ampqUrl;
-        try {
-            ampqUrl = new URI(getEnv(BLOCKCHAIN_QUEUE_SERVICE_URL));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        final URI ampqUrl = new URI(CommonConfiguration.getEnvOrThrow(BLOCKCHAIN_QUEUE_SERVICE_URL));
         
         final CachingConnectionFactory factory = new CachingConnectionFactory();
         factory.setUsername(ampqUrl.getUserInfo().split(":")[0]);
@@ -39,24 +39,21 @@ public class RabbitConfiguration {
     }
     
     @Bean
-    public AmqpAdmin amqpAdmin() {
+    public AmqpAdmin amqpAdmin() throws URISyntaxException {
         return new RabbitAdmin(connectionFactory());
     }
     
     @Bean
-    public RabbitTemplate rabbitTemplate() {
+    public RabbitTemplate rabbitTemplate() throws URISyntaxException {
         RabbitTemplate template = new RabbitTemplate(connectionFactory());
-        template.setRoutingKey(getEnv(BLOCKCHAIN_QUEUE_NAME));
-        template.setDefaultReceiveQueue(getEnv(BLOCKCHAIN_QUEUE_NAME));
+        
+        template.setRoutingKey(blockchainQueueName);
+        template.setDefaultReceiveQueue(blockchainQueueName);
         return template;
     }
     
     @Bean
     public Queue queue() {
-        return new Queue(getEnv(BLOCKCHAIN_QUEUE_NAME));
-    }
-    
-    private String getEnv(String name) {
-        return CommonConfiguration.getEnvOrThrow(name);
+        return new Queue(blockchainQueueName);
     }
 }

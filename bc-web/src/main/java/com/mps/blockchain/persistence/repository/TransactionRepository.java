@@ -9,5 +9,5 @@ import com.mps.blockchain.model.Transaction;
 
 @Repository
 public interface TransactionRepository extends CrudRepository<Transaction, UUID> {
-
+    
 }

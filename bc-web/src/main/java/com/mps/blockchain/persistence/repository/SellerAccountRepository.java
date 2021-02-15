@@ -10,5 +10,5 @@ import com.mps.blockchain.model.SellerAccount;
 
 @Repository
 public interface SellerAccountRepository extends CrudRepository<SellerAccount, UUID> {
-	Optional<SellerAccount> findByMpsSellerId(UUID mpsSellerId);
+    Optional<SellerAccount> findByMpsSellerId(UUID mpsSellerId);
 }

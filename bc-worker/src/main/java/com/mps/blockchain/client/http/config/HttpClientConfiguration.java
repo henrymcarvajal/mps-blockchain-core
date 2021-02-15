@@ -17,7 +17,7 @@ public class HttpClientConfiguration {
     private static final String BLOCKCHAIN_QUEUE_CALLBACK_URL = "BLOCKCHAIN_QUEUE_CALLBACK_URL";
     
     @Bean
-    public HttpClient HttpClient() throws MalformedURLException {
+    public HttpClient httpClient() throws MalformedURLException {
         String queueBackendUrl = CommonConfiguration.getEnvOrThrow(BLOCKCHAIN_QUEUE_CALLBACK_URL);
         HttpClient httpClient = new HttpClient(new OkHttpClient());
         httpClient.setURL(new URL(queueBackendUrl));

@@ -8,19 +8,19 @@ import com.mps.blockchain.contracts.definitions.OperationInvoker;
 
 @Service
 public class ReturnableSaleProvider implements ContractProvider {
-
-	private static final String PROVIDER_NAME = "ReturnableSaleV1";
-
-	@Autowired
-	private ReturnableSaleOperationInvoker invoker;
-
-	@Override
-	public OperationInvoker getInvoker() {
-		return invoker;
-	}
-
-	@Override
-	public String getProviderName() {
-		return ReturnableSaleProvider.PROVIDER_NAME;
-	}
+    
+    private static final String PROVIDER_NAME = "ReturnableSaleV1";
+    
+    @Autowired
+    private ReturnableSaleOperationInvoker invoker;
+    
+    @Override
+    public OperationInvoker getInvoker() {
+        return invoker;
+    }
+    
+    @Override
+    public String getProviderName() {
+        return ReturnableSaleProvider.PROVIDER_NAME;
+    }
 }
