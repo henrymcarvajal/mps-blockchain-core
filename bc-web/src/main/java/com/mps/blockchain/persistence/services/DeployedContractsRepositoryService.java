@@ -12,26 +12,33 @@ import com.mps.blockchain.persistence.repository.DeployedContractsRepository;
 
 @Service
 public class DeployedContractsRepositoryService {
-
-	@Autowired
-	private DeployedContractsRepository repository;
-	
-	public Optional<DeployedContract> findById(UUID id) {
-		return repository.findById(id);
-	}
-
-	public void create(DeployedContract contract) {
-		if (contract != null) {
-			contract.setCreatedDate(LocalDateTime.now());
-			repository.save(contract);
-		}
-	}
-	
-	public void update(DeployedContract contract) {
-		if (contract != null) {
-			contract.setModifiedDate(LocalDateTime.now());
-			repository.save(contract);
-		}
-	}
-
+    
+    @Autowired
+    private DeployedContractsRepository repository;
+    
+    public Optional<DeployedContract> findById(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Illegal argument: id is null");
+        }
+        return repository.findById(id);
+    }
+    
+    public void create(DeployedContract deployedContract) {
+        if (deployedContract == null) {
+            throw new IllegalArgumentException("Illegal argument: deployedContract is null");
+        }
+        
+        deployedContract.setCreatedDate(LocalDateTime.now());
+        repository.save(deployedContract);
+    }
+    
+    public void update(DeployedContract deployedContract) {
+        if (deployedContract == null) {
+            throw new IllegalArgumentException("Illegal argument: deployedContract is null");
+        }
+        
+        deployedContract.setModifiedDate(LocalDateTime.now());
+        repository.save(deployedContract);
+    }
+    
 }

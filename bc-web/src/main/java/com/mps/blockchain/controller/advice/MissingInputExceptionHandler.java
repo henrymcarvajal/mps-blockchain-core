@@ -12,12 +12,12 @@ import com.mps.blockchain.contracts.exceptions.MissingInputException;
 
 @RestControllerAdvice
 public class MissingInputExceptionHandler {
-
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	@ExceptionHandler(MissingInputException.class)
-	public Map<String, String> handleMIssingInputExceptions(MissingInputException ex) {
-		Map<String, String> errors = new HashMap<>();
-		errors.put("missing input", ex.getFieldName());
-		return errors;
-	}
+    
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingInputException.class)
+    public Map<String, String> handleMIssingInputExceptions(MissingInputException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("missing input", ex.getFieldName());
+        return errors;
+    }
 }

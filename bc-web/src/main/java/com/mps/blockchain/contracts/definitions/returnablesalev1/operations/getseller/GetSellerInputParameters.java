@@ -7,26 +7,26 @@ import com.mps.blockchain.contracts.definitions.returnablesalev1.operations.Retu
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
 
 class GetSellerInputParameters {
-
-	private UUID contractId;
-
-	public UUID getContractId() {
-		return contractId;
-	}
-
-	public void setContractId(UUID contractId) {
-		this.contractId = contractId;
-	}
-
-	public static GetSellerInputParameters build(Map<String, String> inputs) throws MissingInputException {
-		if (!inputs.containsKey(ReturnableSaleInputNames.CONTRACT_ID)) {
-			throw new MissingInputException(ReturnableSaleInputNames.CONTRACT_ID);
-		}
-
-		GetSellerInputParameters inputParameters = new GetSellerInputParameters();
-		inputParameters.setContractId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_ID)));
-
-		return inputParameters;
-	}
-
+    
+    private UUID contractId;
+    
+    public UUID getContractId() {
+        return contractId;
+    }
+    
+    public void setContractId(UUID contractId) {
+        this.contractId = contractId;
+    }
+    
+    public static GetSellerInputParameters build(Map<String, String> inputs) throws MissingInputException {
+        if (!inputs.containsKey(ReturnableSaleInputNames.CONTRACT_ID)) {
+            throw new MissingInputException(ReturnableSaleInputNames.CONTRACT_ID);
+        }
+        
+        GetSellerInputParameters inputParameters = new GetSellerInputParameters();
+        inputParameters.setContractId(UUID.fromString(inputs.get(ReturnableSaleInputNames.CONTRACT_ID)));
+        
+        return inputParameters;
+    }
+    
 }

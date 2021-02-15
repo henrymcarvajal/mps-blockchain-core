@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -14,7 +14,6 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.util.ErrorHandler;
 
 import com.mps.blockchain.client.http.HttpClient;
 import com.mps.blockchain.client.http.config.HttpClientConfiguration;
@@ -30,13 +29,16 @@ import com.mps.blockchain.operations.OperationManager;
  */
 public class BlockchainOperationWorker {
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlockchainOperationWorker.class);
+    
     public static void main(String[] args) {
         
         final OperationManager blockchainManager = new OperationManager();
         blockchainManager.loadOperations();
-       
+        
         @SuppressWarnings("resource")
-        final ApplicationContext httpClientConfig = new AnnotationConfigApplicationContext(HttpClientConfiguration.class);
+        final ApplicationContext httpClientConfig = new AnnotationConfigApplicationContext(
+                HttpClientConfiguration.class);
         final HttpClient client = httpClientConfig.getBean(HttpClient.class);
         
         @SuppressWarnings("resource")
@@ -53,11 +55,11 @@ public class BlockchainOperationWorker {
         listenerContainer.setQueueNames(rabbitQueue.getName());
         
         // set the callback for message handling
-        listenerContainer.setMessageListener(new MessageListener() {
-            public void onMessage(Message message) {
+        listenerContainer.setMessageListener(message -> {
+             
                 final BlockchainOperationQueueRequest blockchainOperationMessage = (BlockchainOperationQueueRequest) messageConverter
                         .fromMessage(message);
-                System.out.println("Received from RabbitMQ: " + blockchainOperationMessage);
+                LOGGER.info(String.format("Received from RabbitMQ: %s", blockchainOperationMessage));
                 
                 if (blockchainOperationMessage.getName() != null) {
                     
@@ -65,16 +67,18 @@ public class BlockchainOperationWorker {
                             .getOperation(blockchainOperationMessage.getName());
                     
                     if (blockchainOperationOptional.isPresent()) {
-                        System.out.println("Operation present: " + blockchainOperationMessage.getName());
+                        LOGGER.info(String.format("Operation present: %s", blockchainOperationMessage.getName()));
                         Operation blockchainOperation = blockchainOperationOptional.get();
                         if (blockchainOperationMessage.getPayload() != null
                                 && !blockchainOperationMessage.getPayload().isEmpty()) {
                             blockchainOperation.setInputs(blockchainOperationMessage.getPayload());
                             Map<String, String> outputs = new HashMap<>();
-                            System.out.println("Executing operation... ");
-                            OperationResult result = blockchainOperation.execute(outputs);
                             
-                            System.out.println("Sending results back... ");                            
+                            LOGGER.info("Executing operation... ");
+                            OperationResult result = blockchainOperation.execute(outputs);
+                            LOGGER.info(result.getValue());
+                            
+                            LOGGER.info("Sending results back... ");
                             BlockchainOperationQueueResponse response = new BlockchainOperationQueueResponse();
                             response.setOperationId(blockchainOperationMessage.getOperationId());
                             response.setDate(LocalDateTime.now());
@@ -83,37 +87,34 @@ public class BlockchainOperationWorker {
                             client.sendUpdate(response);
                             
                         } else {
-                            System.out.println("No payload to process");
+                            LOGGER.info("No payload to process");
                         }
                     } else {
-                        System.out.println("No operation with name '" + blockchainOperationMessage.getName() + "'");
+                        LOGGER.info(String.format("No operation with name '%s'", blockchainOperationMessage.getName()));
                     }
                 } else {
-                    System.out.println("No name present");
+                    LOGGER.info("No name present");
                 }
-                System.out.println("Message processed");
+                LOGGER.info("Message processed");
             }
-        });
+        );
         
         // set a simple error handler
-        listenerContainer.setErrorHandler(new ErrorHandler() {
-            public void handleError(Throwable t) {
-                t.printStackTrace();
-            }
-        });
+        listenerContainer.setErrorHandler(Throwable::printStackTrace);
         
         // register a shutdown hook with the JVM
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            
             @Override
             public void run() {
-                System.out.println();
-                System.out.println(String.format("Shutting down message listener at %s... ", LocalDateTime.now()));
+                LOGGER.info(null);
+                LOGGER.info(String.format("Shutting down message listener at %s... ", LocalDateTime.now()));
                 listenerContainer.shutdown();
             }
         });
         
         // start up the listener. this will block until JVM is killed.
         listenerContainer.start();
-        System.out.println(String.format("Message listener started at %s", LocalDateTime.now()));
+        LOGGER.info("Message listener started at {}", LocalDateTime.now());
     }
 }

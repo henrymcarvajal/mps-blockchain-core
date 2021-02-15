@@ -9,5 +9,5 @@ import com.mps.blockchain.model.EnqueuedOperation;
 
 @Repository
 public interface EnqueuedOperationRepository extends CrudRepository<EnqueuedOperation, UUID> {
-
+    
 }

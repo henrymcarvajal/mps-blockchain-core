@@ -11,16 +11,17 @@ import org.springframework.stereotype.Component;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
 
+import com.mps.blockchain.commons.operations.GenericOperationOutputs;
+import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.commons.operations.definitions.DeployOperationMetadata;
 import com.mps.blockchain.commons.queue.messages.BlockchainOperationQueueRequest;
 import com.mps.blockchain.commons.queue.messages.GenericMessageInputParameters;
 import com.mps.blockchain.commons.queue.operations.messages.deploy.DeployContractMessageInputParameters;
 import com.mps.blockchain.contracts.definitions.ContractOperation;
-import com.mps.blockchain.commons.operations.OperationResult;
 import com.mps.blockchain.contracts.definitions.returnablesalev1.ReturnableSaleV1;
 import com.mps.blockchain.contracts.exceptions.MissingInputException;
+import com.mps.blockchain.model.BlockchainAccount;
 import com.mps.blockchain.model.BuyerAccount;
-import com.mps.blockchain.model.DecryptedBlockchainAccount;
 import com.mps.blockchain.model.EnqueuedOperation;
 import com.mps.blockchain.model.SellerAccount;
 import com.mps.blockchain.network.NetworkProvider;
@@ -31,7 +32,9 @@ import com.mps.blockchain.service.accounts.AccountManager;
 import com.mps.blockchain.service.accounts.CredentialsProvider;
 import com.mps.blockchain.service.currencies.Currency;
 import com.mps.blockchain.service.currencies.CurrencyConvertionService;
+import com.mps.blockchain.service.currencies.MissingCurrencyConversionException;
 import com.mps.blockchain.service.queue.BlockchainQueueService;
+import com.mps.blockchain.utils.StringUtils;
 
 @Component
 public class Deploy implements ContractOperation {
@@ -101,61 +104,69 @@ public class Deploy implements ContractOperation {
             throw new IllegalStateException("Previous call to buildInputs required: missing contractValue");
         }
         
-        Optional<DecryptedBlockchainAccount> sellerAccountOptional = blockchainAccountRepositoryService
+        Optional<BlockchainAccount> sellerAccountOptional = blockchainAccountRepositoryService
                 .findById(sellerAccount.getBlockchainAccountId());
         if (sellerAccountOptional.isEmpty()) {
             outputs.put("error", "seller account not found: " + sellerAccount.getBlockchainAccountId());
             return OperationResult.ERROR;
         }
-        DecryptedBlockchainAccount sellerBlockchainAccount = sellerAccountOptional.get();
+        BlockchainAccount sellerBlockchainAccount = sellerAccountOptional.get();
         
-        Optional<DecryptedBlockchainAccount> buyerAccountOptional = blockchainAccountRepositoryService
+        Optional<BlockchainAccount> buyerAccountOptional = blockchainAccountRepositoryService
                 .findById(buyerAccount.getBlockchainAccountId());
         if (buyerAccountOptional.isEmpty()) {
             outputs.put("error", "buyer account not found: " + sellerAccount.getBlockchainAccountId());
             return OperationResult.ERROR;
         }
-        DecryptedBlockchainAccount buyerBlockchainAccount = buyerAccountOptional.get();
+        BlockchainAccount buyerBlockchainAccount = buyerAccountOptional.get();
         
-        BigDecimal amount = currencyConvertionService.convert(Currency.FIAT.COLOMBIAN_PESO, Currency.CRYPTO.XDAI,
-                contractValue);
-        
-        BigDecimal weiAmount = Convert.toWei(amount, Unit.ETHER);
-        
-        BlockchainOperationQueueRequest message = new BlockchainOperationQueueRequest();
-        message.setName(DeployOperationMetadata.NAME);
-        
-        Map<String, String> payload = new HashMap<>();
-        payload.put(GenericMessageInputParameters.NETWORK_ENDPOINT,
-                networkProvider.getBlockchainConnectionURL());
-        payload.put(DeployContractMessageInputParameters.MAIN_ACCOUNT_PRIVATE_KEY,
-                credentialsProvider.getMpsAccountPrivateK());
-        payload.put(DeployContractMessageInputParameters.MAIN_ACCOUNT_PUBLIC_KEY,
-                credentialsProvider.getMpsAccountPublicK());
-        payload.put(DeployContractMessageInputParameters.CONTRACT_AMOUNT,
-                weiAmount.stripTrailingZeros().toPlainString());
-        payload.put(DeployContractMessageInputParameters.SELLER_ACCOUNT_ID, sellerAccount.getId().toString());
-        payload.put(DeployContractMessageInputParameters.BUYER_ACCOUNT_ID, buyerAccount.getId().toString());
-        payload.put(DeployContractMessageInputParameters.SELLER_ACCOUNT_ADDRESS, sellerBlockchainAccount.getAddress());
-        payload.put(DeployContractMessageInputParameters.BUYER_ACCOUNT_ADDRESS, buyerBlockchainAccount.getAddress());
-        payload.put(DeployContractMessageInputParameters.CONTRACT_DEFINITION_ID, ReturnableSaleV1.CONTRACT_ID.toString());
-        payload.put(DeployContractMessageInputParameters.TRANSACTION_ID, transactionId.toString());
-        message.setPayload(payload);
-        
-        UUID id = UUID.randomUUID();
-        message.setOperationId(id);
-        
-        EnqueuedOperation enqueuedOperation = new EnqueuedOperation();
-        enqueuedOperation.setId(id);
-        enqueuedOperation.setTransactionId(transactionId);
-        enqueuedOperation.setRequest(message);
-        enqueuedOperationRepositoryService.create(enqueuedOperation);
-        
-        queueService.sendRequestMessage(message);
-        
-        accountFunder.fundSellerAddress(sellerBlockchainAccount.getAddress(), transactionId);
-        accountFunder.fundBuyerAddress(buyerBlockchainAccount.getAddress(), transactionId);
-        
-        return OperationResult.SUCCESS;
+        BigDecimal amount;
+        try {
+            amount = currencyConvertionService.convert(Currency.FIAT.COLOMBIAN_PESO, Currency.CRYPTO.XDAI,
+                    contractValue);
+            
+            BigDecimal weiAmount = Convert.toWei(amount, Unit.ETHER);
+            
+            BlockchainOperationQueueRequest message = new BlockchainOperationQueueRequest();
+            message.setName(DeployOperationMetadata.NAME);
+            
+            Map<String, String> payload = new HashMap<>();
+            payload.put(GenericMessageInputParameters.NETWORK_ENDPOINT, networkProvider.getBlockchainConnectionURL());
+            payload.put(DeployContractMessageInputParameters.MAIN_ACCOUNT_PRIVATE_KEY,
+                    credentialsProvider.getMpsAccountPrivateK());
+            payload.put(DeployContractMessageInputParameters.MAIN_ACCOUNT_PUBLIC_KEY,
+                    credentialsProvider.getMpsAccountPublicK());
+            payload.put(DeployContractMessageInputParameters.CONTRACT_AMOUNT,
+                    weiAmount.stripTrailingZeros().toPlainString());
+            payload.put(DeployContractMessageInputParameters.SELLER_ACCOUNT_ID, sellerAccount.getId().toString());
+            payload.put(DeployContractMessageInputParameters.BUYER_ACCOUNT_ID, buyerAccount.getId().toString());
+            payload.put(DeployContractMessageInputParameters.SELLER_ACCOUNT_ADDRESS,
+                    sellerBlockchainAccount.getAddress());
+            payload.put(DeployContractMessageInputParameters.BUYER_ACCOUNT_ADDRESS,
+                    buyerBlockchainAccount.getAddress());
+            payload.put(DeployContractMessageInputParameters.CONTRACT_DEFINITION_ID,
+                    ReturnableSaleV1.CONTRACT_ID.toString());
+            payload.put(DeployContractMessageInputParameters.TRANSACTION_ID, transactionId.toString());
+            message.setPayload(payload);
+            
+            UUID id = UUID.randomUUID();
+            message.setOperationId(id);
+            
+            EnqueuedOperation enqueuedOperation = new EnqueuedOperation();
+            enqueuedOperation.setId(id);
+            enqueuedOperation.setTransactionId(transactionId);
+            enqueuedOperation.setRequest(message);
+            enqueuedOperationRepositoryService.create(enqueuedOperation);
+            
+            queueService.sendRequestMessage(message);
+            
+            accountFunder.fundSellerAddress(sellerBlockchainAccount.getAddress(), transactionId);
+            accountFunder.fundBuyerAddress(buyerBlockchainAccount.getAddress(), transactionId);
+            
+            return OperationResult.SUCCESS;
+        } catch (MissingCurrencyConversionException e) {
+            outputs.put(GenericOperationOutputs.ERROR_MESSAGE, StringUtils.toString(e));
+            return OperationResult.ERROR;
+        }
     }
 }

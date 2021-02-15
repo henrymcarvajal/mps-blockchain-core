@@ -9,21 +9,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mps.blockchain.service.currencies.CurrencyConvertionService;
+import com.mps.blockchain.service.currencies.MissingCurrencyConversionException;
 
 @RestController
 @RequestMapping("/currency")
 public class CurrencyController {
-
-	@Autowired
-	private CurrencyConvertionService currencyConvertionService;
-
-	@GetMapping("/{from}/{to}/{amount}")
-	public BigDecimal convert(@PathVariable String from, @PathVariable String to, @PathVariable BigDecimal amount) {
-		return currencyConvertionService.convert(from, to, amount);
-	}
-
-	@GetMapping("/ping")
-	public String getPing() {
-		return "CurrencyController there!";
-	}
+    
+    @Autowired
+    private CurrencyConvertionService currencyConvertionService;
+    
+    @GetMapping("/{from}/{to}/{amount}")
+    public String convert(@PathVariable String from, @PathVariable String to, @PathVariable BigDecimal amount) throws MissingCurrencyConversionException {
+        return currencyConvertionService.convert(from, to, amount).stripTrailingZeros().toPlainString();
+    }
+    
+    @GetMapping("/ping")
+    public String getPing() {
+        return "CurrencyController there!";
+    }
 }

@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class BlockchainBackendApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(BlockchainBackendApplication.class, args);
-	}
-
+    
+    public static void main(String[] args) {
+        SpringApplication.run(BlockchainBackendApplication.class, args);
+    }
+    
 }
