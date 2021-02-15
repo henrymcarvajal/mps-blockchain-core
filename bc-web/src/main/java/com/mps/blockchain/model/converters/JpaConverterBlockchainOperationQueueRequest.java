@@ -21,7 +21,7 @@ public class JpaConverterBlockchainOperationQueueRequest
     
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(JpaConverterBlockchainOperationQueueRequest.class);
-        
+    
     public JpaConverterBlockchainOperationQueueRequest() {
         OBJECT_MAPPER.registerModule(new JavaTimeModule());
         OBJECT_MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
